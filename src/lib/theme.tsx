@@ -1,0 +1,57 @@
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+
+type ThemeMode = "light" | "dark" | "system";
+
+const KEY = "hi.theme";
+
+type Ctx = {
+  mode: ThemeMode;
+  resolved: "light" | "dark";
+  setMode: (m: ThemeMode) => void;
+};
+
+const ThemeContext = createContext<Ctx | null>(null);
+
+function apply(mode: ThemeMode): "light" | "dark" {
+  if (typeof window === "undefined") return "light";
+  const sysDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const resolved: "light" | "dark" = mode === "system" ? (sysDark ? "dark" : "light") : mode;
+  const root = document.documentElement;
+  if (resolved === "dark") root.classList.add("dark");
+  else root.classList.remove("dark");
+  return resolved;
+}
+
+export function ThemeProvider({ children }: { children: ReactNode }) {
+  const [mode, setModeState] = useState<ThemeMode>("system");
+  const [resolved, setResolved] = useState<"light" | "dark">("light");
+
+  useEffect(() => {
+    const stored = (localStorage.getItem(KEY) as ThemeMode | null) ?? "system";
+    setModeState(stored);
+    setResolved(apply(stored));
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const onChange = () => {
+      const current = (localStorage.getItem(KEY) as ThemeMode | null) ?? "system";
+      if (current === "system") setResolved(apply("system"));
+    };
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
+  const setMode = (m: ThemeMode) => {
+    localStorage.setItem(KEY, m);
+    setModeState(m);
+    setResolved(apply(m));
+  };
+
+  return (
+    <ThemeContext.Provider value={{ mode, resolved, setMode }}>{children}</ThemeContext.Provider>
+  );
+}
+
+export function useTheme() {
+  const ctx = useContext(ThemeContext);
+  if (!ctx) throw new Error("useTheme must be used within ThemeProvider");
+  return ctx;
+}
