@@ -112,6 +112,16 @@ export function LoginPage() {
             </p>
           </div>
         )}
+
+        <a
+          href="https://lealtek.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex opacity-40 transition-opacity hover:opacity-70"
+          title="Desenvolvido por LealTEK"
+        >
+          <img src="/lealtek-full.png" alt="LealTEK" className="h-8 object-contain" />
+        </a>
       </div>
     </div>
   );
