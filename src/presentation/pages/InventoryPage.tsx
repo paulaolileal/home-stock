@@ -20,7 +20,7 @@ export function InventoryPage() {
         (p) =>
           !q ||
           p.name.toLowerCase().includes(q) ||
-          (p.brand?.toLowerCase().includes(q) ?? false) ||
+          (p.notes?.toLowerCase().includes(q) ?? false) ||
           p.category.toLowerCase().includes(q) ||
           p.location.toLowerCase().includes(q),
       )

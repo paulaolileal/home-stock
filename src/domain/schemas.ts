@@ -20,7 +20,7 @@ export const productInputSchema = z.object({
   minQuantity: z.number().nonnegative(),
   idealQuantity: z.number().nonnegative(),
   unit: safeString(30),
-  brand: safeString(80).optional(),
+  notes: safeString(300).optional(),
   barcode: z.string().trim().max(30).optional(),
   image: z.string().trim().url().optional(),
   favorite: z.boolean().default(false),

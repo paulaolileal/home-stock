@@ -1,10 +1,19 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ScanLine, ArrowLeft } from "lucide-react";
+import { ScanLine, ArrowLeft, ImageOff } from "lucide-react";
 import { toast } from "sonner";
 import { BarcodeScannerModal } from "@/presentation/components/BarcodeScannerModal";
 import { useBarcodeLookup } from "@/hooks/useBarcodeLookup";
 import { useCategories, useCreateProduct, useLocations } from "@/hooks/queries";
+import { COMMON_UNITS } from "@/domain/units";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 
 export function AddProductPage() {
   const navigate = useNavigate();
@@ -20,8 +29,9 @@ export function AddProductPage() {
   const [quantity, setQuantity] = useState(1);
   const [min, setMin] = useState(1);
   const [ideal, setIdeal] = useState(3);
-  const [unit, setUnit] = useState("unidades");
-  const [brand, setBrand] = useState("");
+  const [unit, setUnit] = useState<string>("unidades");
+  const [notes, setNotes] = useState("");
+  const [image, setImage] = useState("");
   const [barcode, setBarcode] = useState<string | undefined>();
 
   async function handleBarcodeDetected(code: string) {
@@ -35,7 +45,8 @@ export function AddProductPage() {
       return;
     }
     if (found.name) setName(found.name);
-    if (found.brand) setBrand(found.brand);
+    if (found.brand) setNotes(found.brand);
+    if (found.image) setImage(found.image);
     if (found.category) {
       const match = categories.find((c) => c.name.toLowerCase() === found.category!.toLowerCase());
       if (match) setCategory(match.name);
@@ -58,7 +69,8 @@ export function AddProductPage() {
         minQuantity: min,
         idealQuantity: Math.max(min, ideal),
         unit,
-        brand: brand.trim() || undefined,
+        notes: notes.trim() || undefined,
+        image: image.trim() || undefined,
         barcode,
         favorite: false,
       },
@@ -122,32 +134,20 @@ export function AddProductPage() {
           </Field>
 
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Categoria">
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full bg-transparent text-sm font-semibold outline-none"
-              >
-                {categories.map((c) => (
-                  <option key={c.id} value={c.name}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-            </Field>
-            <Field label="Local">
-              <select
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                className="w-full bg-transparent text-sm font-semibold outline-none"
-              >
-                {locations.map((l) => (
-                  <option key={l.id} value={l.name}>
-                    {l.name}
-                  </option>
-                ))}
-              </select>
-            </Field>
+            <SelectField label="Categoria" value={category} onChange={setCategory}>
+              {categories.map((c) => (
+                <SelectItem key={c.id} value={c.name}>
+                  {c.name}
+                </SelectItem>
+              ))}
+            </SelectField>
+            <SelectField label="Local" value={location} onChange={setLocation}>
+              {locations.map((l) => (
+                <SelectItem key={l.id} value={l.name}>
+                  {l.name}
+                </SelectItem>
+              ))}
+            </SelectField>
           </div>
 
           <div className="grid grid-cols-3 gap-3">
@@ -156,24 +156,46 @@ export function AddProductPage() {
             <NumField label="Ideal" value={ideal} onChange={setIdeal} />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Unidade">
+          <SelectField label="Unidade" value={unit} onChange={setUnit}>
+            {(COMMON_UNITS as readonly string[]).includes(unit) ? null : (
+              <SelectItem value={unit}>{unit}</SelectItem>
+            )}
+            {COMMON_UNITS.map((u) => (
+              <SelectItem key={u} value={u}>
+                {u}
+              </SelectItem>
+            ))}
+          </SelectField>
+
+          <Field label="Imagem (URL, opcional)">
+            <div className="flex items-center gap-3">
               <input
-                value={unit}
-                onChange={(e) => setUnit(e.target.value)}
-                placeholder="unidades"
-                className="w-full bg-transparent text-sm font-semibold outline-none"
+                value={image}
+                onChange={(e) => setImage(e.target.value)}
+                placeholder="https://..."
+                className="w-full min-w-0 flex-1 bg-transparent text-sm font-semibold outline-none placeholder:text-muted-foreground"
               />
-            </Field>
-            <Field label="Marca (opcional)">
-              <input
-                value={brand}
-                onChange={(e) => setBrand(e.target.value)}
-                placeholder="—"
-                className="w-full bg-transparent text-sm font-semibold outline-none"
-              />
-            </Field>
-          </div>
+              {image ? (
+                <img
+                  src={image}
+                  alt=""
+                  className="size-9 shrink-0 rounded-lg object-cover ring-1 ring-border"
+                />
+              ) : (
+                <ImageOff className="size-5 shrink-0 text-muted-foreground" strokeWidth={2} />
+              )}
+            </div>
+          </Field>
+
+          <Field label="Observações (opcional)">
+            <Textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Ex.: comprar a versão sem açúcar"
+              rows={2}
+              className="w-full resize-none border-0 bg-transparent p-0 text-sm font-semibold shadow-none outline-none placeholder:font-normal placeholder:text-muted-foreground focus-visible:ring-0"
+            />
+          </Field>
 
           <button
             type="submit"
@@ -203,6 +225,32 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       </span>
       <div className="mt-0.5">{children}</div>
     </label>
+  );
+}
+
+function SelectField({
+  label,
+  value,
+  onChange,
+  children,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="block rounded-2xl bg-surface-2 px-4 py-3 ring-1 ring-border">
+      <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+        {label}
+      </span>
+      <Select value={value} onValueChange={onChange}>
+        <SelectTrigger className="mt-0.5 h-auto w-full border-0 bg-transparent p-0 text-sm font-semibold shadow-none focus:ring-0 focus:ring-offset-0">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>{children}</SelectContent>
+      </Select>
+    </div>
   );
 }
 

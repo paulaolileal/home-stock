@@ -13,7 +13,7 @@ export function SearchPage() {
     return products.filter(
       (p) =>
         p.name.toLowerCase().includes(s) ||
-        (p.brand?.toLowerCase().includes(s) ?? false) ||
+        (p.notes?.toLowerCase().includes(s) ?? false) ||
         p.category.toLowerCase().includes(s) ||
         p.location.toLowerCase().includes(s),
     );

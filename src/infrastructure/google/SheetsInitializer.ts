@@ -17,7 +17,7 @@ const SHEET_SPECS: SheetSpec[] = [
       "min_quantity",
       "ideal_quantity",
       "unit",
-      "brand",
+      "notes",
       "barcode",
       "image",
       "favorite",

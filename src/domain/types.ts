@@ -7,7 +7,7 @@ export type Product = {
   minQuantity: number;
   idealQuantity: number;
   unit: string;
-  brand?: string;
+  notes?: string;
   barcode?: string;
   image?: string;
   favorite: boolean;

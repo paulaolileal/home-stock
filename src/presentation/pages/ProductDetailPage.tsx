@@ -11,6 +11,15 @@ import {
   useToggleFavorite,
   useUpdateProduct,
 } from "@/hooks/queries";
+import { COMMON_UNITS } from "@/domain/units";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 
 export function ProductDetailPage() {
   const { id = "" } = useParams<{ id: string }>();
@@ -82,20 +91,34 @@ export function ProductDetailPage() {
       </header>
 
       <div className="px-6 pb-4 space-y-4 animate-slide-up">
-        <div>
-          {low && (
-            <span className="inline-block rounded-full bg-alert/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-alert">
-              Baixo estoque
-            </span>
+        <div className="flex items-start gap-4">
+          {product.image && (
+            <img
+              src={product.image}
+              alt=""
+              className="size-16 shrink-0 rounded-2xl object-cover ring-1 ring-border"
+            />
           )}
-          <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-balance">
-            {product.name}
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {product.location} • {product.category}
-            {product.brand ? ` • ${product.brand}` : ""}
-          </p>
+          <div className="min-w-0">
+            {low && (
+              <span className="inline-block rounded-full bg-alert/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-alert">
+                Baixo estoque
+              </span>
+            )}
+            <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-balance">
+              {product.name}
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {product.location} • {product.category}
+            </p>
+          </div>
         </div>
+
+        {product.notes && (
+          <p className="rounded-2xl bg-surface-2 p-4 text-sm text-muted-foreground ring-1 ring-border">
+            {product.notes}
+          </p>
+        )}
 
         {/* Big stepper */}
         <div className="rounded-3xl bg-card p-6 ring-1 ring-border shadow-[var(--shadow-soft)]">
@@ -135,34 +158,42 @@ export function ProductDetailPage() {
         {editing && (
           <div className="space-y-3 rounded-3xl bg-card p-5 ring-1 ring-border">
             <Row label="Categoria">
-              <select
+              <Select
                 value={product.category}
-                onChange={(e) =>
-                  updateProduct.mutate({ id: product.id, patch: { category: e.target.value } })
+                onValueChange={(v) =>
+                  updateProduct.mutate({ id: product.id, patch: { category: v } })
                 }
-                className="bg-transparent text-sm font-semibold outline-none"
               >
-                {categories.map((c) => (
-                  <option key={c.id} value={c.name}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="h-auto w-auto border-0 bg-transparent p-0 text-sm font-semibold shadow-none focus:ring-0 focus:ring-offset-0">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((c) => (
+                    <SelectItem key={c.id} value={c.name}>
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </Row>
             <Row label="Local">
-              <select
+              <Select
                 value={product.location}
-                onChange={(e) =>
-                  updateProduct.mutate({ id: product.id, patch: { location: e.target.value } })
+                onValueChange={(v) =>
+                  updateProduct.mutate({ id: product.id, patch: { location: v } })
                 }
-                className="bg-transparent text-sm font-semibold outline-none"
               >
-                {locations.map((l) => (
-                  <option key={l.id} value={l.name}>
-                    {l.name}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="h-auto w-auto border-0 bg-transparent p-0 text-sm font-semibold shadow-none focus:ring-0 focus:ring-offset-0">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {locations.map((l) => (
+                    <SelectItem key={l.id} value={l.name}>
+                      {l.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </Row>
             <Row label="Mínimo">
               <input
@@ -193,24 +224,69 @@ export function ProductDetailPage() {
               />
             </Row>
             <Row label="Unidade">
-              <input
+              <Select
                 value={product.unit}
-                onChange={(e) =>
-                  updateProduct.mutate({ id: product.id, patch: { unit: e.target.value } })
-                }
-                className="w-28 bg-transparent text-right text-sm font-semibold outline-none"
-              />
+                onValueChange={(v) => updateProduct.mutate({ id: product.id, patch: { unit: v } })}
+              >
+                <SelectTrigger className="h-auto w-auto border-0 bg-transparent p-0 text-sm font-semibold shadow-none focus:ring-0 focus:ring-offset-0">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {(COMMON_UNITS as readonly string[]).includes(product.unit) ? null : (
+                    <SelectItem value={product.unit}>{product.unit}</SelectItem>
+                  )}
+                  {COMMON_UNITS.map((u) => (
+                    <SelectItem key={u} value={u}>
+                      {u}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </Row>
-            <Row label="Marca">
-              <input
-                value={product.brand ?? ""}
-                onChange={(e) =>
-                  updateProduct.mutate({ id: product.id, patch: { brand: e.target.value } })
+
+            <label className="block rounded-xl bg-surface-2 px-4 py-3 ring-1 ring-border">
+              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Imagem (URL)
+              </span>
+              <div className="mt-1 flex items-center gap-3">
+                <input
+                  defaultValue={product.image ?? ""}
+                  onBlur={(e) =>
+                    updateProduct.mutate({
+                      id: product.id,
+                      patch: { image: e.target.value.trim() || undefined },
+                    })
+                  }
+                  placeholder="https://..."
+                  className="w-full min-w-0 flex-1 bg-transparent text-sm font-semibold outline-none placeholder:text-muted-foreground"
+                />
+                {product.image && (
+                  <img
+                    src={product.image}
+                    alt=""
+                    className="size-9 shrink-0 rounded-lg object-cover ring-1 ring-border"
+                  />
+                )}
+              </div>
+            </label>
+
+            <label className="block rounded-xl bg-surface-2 px-4 py-3 ring-1 ring-border">
+              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Observações
+              </span>
+              <Textarea
+                defaultValue={product.notes ?? ""}
+                onBlur={(e) =>
+                  updateProduct.mutate({
+                    id: product.id,
+                    patch: { notes: e.target.value.trim() || undefined },
+                  })
                 }
                 placeholder="—"
-                className="w-32 bg-transparent text-right text-sm font-semibold outline-none placeholder:text-muted-foreground"
+                rows={2}
+                className="mt-1 w-full resize-none border-0 bg-transparent p-0 text-sm font-semibold shadow-none outline-none placeholder:font-normal placeholder:text-muted-foreground focus-visible:ring-0"
               />
-            </Row>
+            </label>
           </div>
         )}
       </div>

@@ -19,12 +19,20 @@ export function ProductCard({
       className="group block rounded-3xl bg-card p-4 shadow-[var(--shadow-soft)] ring-1 ring-border transition-all active:scale-[0.99]"
     >
       <div className="mb-3 flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h3 className="truncate font-semibold text-card-foreground">{product.name}</h3>
-          <p className="mt-0.5 truncate text-xs text-muted-foreground">
-            {product.location} • {product.category}
-            {product.brand ? ` • ${product.brand}` : ""}
-          </p>
+        <div className="flex min-w-0 items-center gap-3">
+          {product.image && (
+            <img
+              src={product.image}
+              alt=""
+              className="size-11 shrink-0 rounded-xl object-cover ring-1 ring-border"
+            />
+          )}
+          <div className="min-w-0">
+            <h3 className="truncate font-semibold text-card-foreground">{product.name}</h3>
+            <p className="mt-0.5 truncate text-xs text-muted-foreground">
+              {product.location} • {product.category}
+            </p>
+          </div>
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
           {low && (

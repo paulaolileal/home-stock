@@ -1,8 +1,19 @@
-import { Link, useLocation } from "react-router-dom";
-import { Boxes, ShoppingCart, Plus, Search, Settings } from "lucide-react";
+import { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Boxes, ShoppingCart, Plus, Search, Settings, Package, Tag, MapPin } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { QuickAddDialog } from "@/presentation/components/QuickAddDialog";
 
 export function BottomNav() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [quickAdd, setQuickAdd] = useState<"category" | "location" | null>(null);
 
   const items = [
     { to: "/", icon: Boxes, label: "Inventário", match: (p: string) => p === "/" },
@@ -49,13 +60,49 @@ export function BottomNav() {
             </Link>
           );
         })}
-        <Link
-          to="/adicionar"
-          aria-label="Adicionar produto"
-          className="flex size-12 shrink-0 items-center justify-center rounded-full bg-foreground text-background shadow-[var(--shadow-pop)] transition-transform active:scale-90"
-        >
-          <Plus className="size-6" strokeWidth={2.4} />
-        </Link>
+
+        <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
+          <DropdownMenuTrigger asChild>
+            <button
+              aria-label="Adicionar"
+              className="flex size-12 shrink-0 items-center justify-center rounded-full bg-foreground text-background shadow-[var(--shadow-pop)] transition-transform active:scale-90"
+            >
+              <Plus
+                className={`size-6 transition-transform duration-200 ${menuOpen ? "rotate-45" : ""}`}
+                strokeWidth={2.4}
+              />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            side="top"
+            align="center"
+            sideOffset={12}
+            className="w-48 rounded-2xl p-1.5"
+          >
+            <DropdownMenuItem
+              className="gap-2 rounded-xl py-2.5 text-sm font-semibold"
+              onSelect={() => navigate("/adicionar")}
+            >
+              <Package className="size-4" strokeWidth={2.2} />
+              Novo produto
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="gap-2 rounded-xl py-2.5 text-sm font-semibold"
+              onSelect={() => setQuickAdd("category")}
+            >
+              <Tag className="size-4" strokeWidth={2.2} />
+              Nova categoria
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="gap-2 rounded-xl py-2.5 text-sm font-semibold"
+              onSelect={() => setQuickAdd("location")}
+            >
+              <MapPin className="size-4" strokeWidth={2.2} />
+              Novo local
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
         {items.slice(2).map((it) => {
           const active = it.match(pathname);
           const Icon = it.icon;
@@ -76,6 +123,14 @@ export function BottomNav() {
       </nav>
       {/* spacer so content doesn't hide under nav */}
       <div aria-hidden className="h-28" />
+
+      {quickAdd && (
+        <QuickAddDialog
+          type={quickAdd}
+          open={!!quickAdd}
+          onOpenChange={(open) => !open && setQuickAdd(null)}
+        />
+      )}
     </>
   );
 }
