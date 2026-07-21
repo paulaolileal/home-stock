@@ -11,8 +11,8 @@ const SHEET_SPECS: SheetSpec[] = [
     headers: [
       "product_id",
       "name",
-      "category",
-      "location",
+      "category_id",
+      "location_id",
       "quantity",
       "min_quantity",
       "ideal_quantity",

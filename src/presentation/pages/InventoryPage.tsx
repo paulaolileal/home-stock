@@ -1,28 +1,36 @@
 import { useMemo, useState } from "react";
 import { Search, Star } from "lucide-react";
 import { ProductCard } from "@/presentation/components/ProductCard";
-import { needsShopping, useCategories, useIncrementProduct, useProducts } from "@/hooks/queries";
+import {
+  needsShopping,
+  useCategories,
+  useIncrementProduct,
+  useLocations,
+  useProducts,
+} from "@/hooks/queries";
+import { resolveName } from "@/domain/lookup";
 
 export function InventoryPage() {
   const { data: products = [], isLoading } = useProducts();
   const { data: categories = [] } = useCategories();
+  const { data: locations = [] } = useLocations();
   const incrementProduct = useIncrementProduct();
   const [query, setQuery] = useState("");
-  const [category, setCategory] = useState<string>("Todos");
+  const [categoryId, setCategoryId] = useState<string>("Todos");
   const [onlyFav, setOnlyFav] = useState(false);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return products
-      .filter((p) => (category === "Todos" ? true : p.category === category))
+      .filter((p) => (categoryId === "Todos" ? true : p.categoryId === categoryId))
       .filter((p) => (onlyFav ? p.favorite : true))
       .filter(
         (p) =>
           !q ||
           p.name.toLowerCase().includes(q) ||
           (p.notes?.toLowerCase().includes(q) ?? false) ||
-          p.category.toLowerCase().includes(q) ||
-          p.location.toLowerCase().includes(q),
+          resolveName(categories, p.categoryId).toLowerCase().includes(q) ||
+          resolveName(locations, p.locationId).toLowerCase().includes(q),
       )
       .sort((a, b) => {
         // low-stock first, then favorites, then recent
@@ -32,7 +40,7 @@ export function InventoryPage() {
         if (a.favorite !== b.favorite) return a.favorite ? -1 : 1;
         return b.updatedAt.localeCompare(a.updatedAt);
       });
-  }, [products, query, category, onlyFav]);
+  }, [products, query, categoryId, onlyFav, categories, locations]);
 
   const lowCount = products.filter(needsShopping).length;
 
@@ -82,15 +90,15 @@ export function InventoryPage() {
           </button>
           <FilterPill
             label="Todos"
-            active={category === "Todos"}
-            onClick={() => setCategory("Todos")}
+            active={categoryId === "Todos"}
+            onClick={() => setCategoryId("Todos")}
           />
           {categories.map((c) => (
             <FilterPill
               key={c.id}
               label={c.name}
-              active={category === c.name}
-              onClick={() => setCategory(c.name)}
+              active={categoryId === c.id}
+              onClick={() => setCategoryId(c.id)}
             />
           ))}
         </div>

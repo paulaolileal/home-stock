@@ -1,11 +1,14 @@
 import { useMemo, useState } from "react";
 import { Search as SearchIcon } from "lucide-react";
 import { ProductCard } from "@/presentation/components/ProductCard";
-import { useIncrementProduct, useProducts } from "@/hooks/queries";
+import { useCategories, useIncrementProduct, useLocations, useProducts } from "@/hooks/queries";
+import { resolveName } from "@/domain/lookup";
 
 export function SearchPage() {
   const [q, setQ] = useState("");
   const { data: products = [] } = useProducts();
+  const { data: categories = [] } = useCategories();
+  const { data: locations = [] } = useLocations();
   const incrementProduct = useIncrementProduct();
   const results = useMemo(() => {
     const s = q.trim().toLowerCase();
@@ -14,10 +17,10 @@ export function SearchPage() {
       (p) =>
         p.name.toLowerCase().includes(s) ||
         (p.notes?.toLowerCase().includes(s) ?? false) ||
-        p.category.toLowerCase().includes(s) ||
-        p.location.toLowerCase().includes(s),
+        resolveName(categories, p.categoryId).toLowerCase().includes(s) ||
+        resolveName(locations, p.locationId).toLowerCase().includes(s),
     );
-  }, [q, products]);
+  }, [q, products, categories, locations]);
 
   return (
     <>

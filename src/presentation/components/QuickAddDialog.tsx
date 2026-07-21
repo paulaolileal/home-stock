@@ -6,7 +6,7 @@ type QuickAddType = "category" | "location";
 
 const COPY: Record<QuickAddType, { title: string; placeholder: string }> = {
   category: { title: "Nova categoria", placeholder: "Ex.: Despensa" },
-  location: { title: "Novo local", placeholder: "Ex.: Cozinha" },
+  location: { title: "Novo local", placeholder: "Ex.: Cozinha > Geladeira" },
 };
 
 export function QuickAddDialog({

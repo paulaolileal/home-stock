@@ -33,7 +33,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <ErrorBoundary>
       <PersistQueryClientProvider
         client={queryClient}
-        persistOptions={{ persister, maxAge: TEN_MINUTES, buster: "v1" }}
+        // Bump buster on any breaking change to cached shapes (Product/Category/Location
+        // fields) so stale localStorage snapshots get discarded instead of restored.
+        persistOptions={{ persister, maxAge: TEN_MINUTES, buster: "v2" }}
       >
         <ThemeProvider>
           <BrowserRouter basename={import.meta.env.VITE_BASE_PATH ?? "/"}>

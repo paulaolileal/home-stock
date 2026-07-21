@@ -184,6 +184,15 @@ export function useCreateCategory() {
   });
 }
 
+export function useUpdateCategory() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, name }: { id: string; name: string }) => repo().updateCategory(id, name),
+    onSuccess: () => qc.invalidateQueries({ queryKey: qk.categories }),
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+
 export function useDeleteCategory() {
   const qc = useQueryClient();
   return useMutation({
@@ -197,6 +206,15 @@ export function useCreateLocation() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (name: string) => repo().createLocation(name),
+    onSuccess: () => qc.invalidateQueries({ queryKey: qk.locations }),
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+
+export function useUpdateLocation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, name }: { id: string; name: string }) => repo().updateLocation(id, name),
     onSuccess: () => qc.invalidateQueries({ queryKey: qk.locations }),
     onError: (e: Error) => toast.error(e.message),
   });

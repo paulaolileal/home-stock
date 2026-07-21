@@ -1,7 +1,9 @@
 import { useRef, useState } from "react";
 import { Check, Minus, Plus } from "lucide-react";
-import { needsShopping, useSetInCart } from "@/hooks/queries";
+import { needsShopping, useLocations, useSetInCart } from "@/hooks/queries";
 import { useShoppingListStore } from "@/store/shoppingListStore";
+import { resolveName } from "@/domain/lookup";
+import { formatLocation } from "@/lib/locationFormat";
 import type { Product } from "@/domain/types";
 
 const THRESHOLD = 80;
@@ -10,6 +12,7 @@ export function ShoppingRow({ product }: { product: Product }) {
   const inCart = !!product.inCart;
   const setInCart = useSetInCart();
   const isLow = needsShopping(product);
+  const { data: locations = [] } = useLocations();
   const missing = Math.max(0, product.idealQuantity - product.quantity);
 
   const storedTarget = useShoppingListStore((s) => s.targetQuantities[product.id]);
@@ -123,7 +126,8 @@ export function ShoppingRow({ product }: { product: Product }) {
             <p className="truncate text-[10px] italic text-muted-foreground">({product.notes})</p>
           )}
           <p className="truncate text-[10px] text-muted-foreground">
-            {product.location} • tem {product.quantity} {product.unit}
+            {formatLocation(resolveName(locations, product.locationId))} • tem {product.quantity}{" "}
+            {product.unit}
             {isLow && " • em baixa"}
           </p>
         </div>

@@ -26,8 +26,8 @@ const SHEETS = {
 const PRODUCT_HEADERS = [
   "product_id",
   "name",
-  "category",
-  "location",
+  "category_id",
+  "location_id",
   "quantity",
   "min_quantity",
   "ideal_quantity",
@@ -127,8 +127,8 @@ export class GoogleSheetsRepository implements InventoryRepository {
     return {
       id: r.product_id,
       name: r.name,
-      category: r.category,
-      location: r.location,
+      categoryId: r.category_id,
+      locationId: r.location_id,
       quantity: Number(r.quantity) || 0,
       minQuantity: Number(r.min_quantity) || 0,
       idealQuantity: Number(r.ideal_quantity) || 0,
@@ -146,8 +146,8 @@ export class GoogleSheetsRepository implements InventoryRepository {
     return [
       p.id,
       p.name,
-      p.category,
-      p.location,
+      p.categoryId,
+      p.locationId,
       p.quantity,
       p.minQuantity,
       p.idealQuantity,
@@ -223,6 +223,27 @@ export class GoogleSheetsRepository implements InventoryRepository {
     return category;
   }
 
+  async updateCategory(id: string, name: string): Promise<Category> {
+    const existing = await this.getCategories();
+    const current = existing.find((c) => c.id === id);
+    if (!current) throw new Error(`Categoria ${id} não encontrada`);
+    const duplicate = existing.find(
+      (c) => c.id !== id && c.name.toLowerCase() === name.toLowerCase(),
+    );
+    if (duplicate) throw new Error(`Já existe uma categoria chamada "${name}"`);
+
+    const updated: Category = { ...current, name };
+    const rowIdx = await this.findRowIndex(SHEETS.categories, "category_id", id);
+    await this.request(
+      `/values/${SHEETS.categories}!A${rowIdx}:C${rowIdx}?valueInputOption=USER_ENTERED`,
+      {
+        method: "PUT",
+        body: JSON.stringify({ values: [[updated.id, updated.name, updated.emoji ?? ""]] }),
+      },
+    );
+    return updated;
+  }
+
   async deleteCategory(id: string): Promise<void> {
     await this.deleteRow(SHEETS.categories, "category_id", id);
   }
@@ -249,6 +270,24 @@ export class GoogleSheetsRepository implements InventoryRepository {
       body: JSON.stringify({ values: [[location.id, location.name]] }),
     });
     return location;
+  }
+
+  async updateLocation(id: string, name: string): Promise<Location> {
+    const existing = await this.getLocations();
+    const current = existing.find((l) => l.id === id);
+    if (!current) throw new Error(`Local ${id} não encontrado`);
+    const duplicate = existing.find(
+      (l) => l.id !== id && l.name.toLowerCase() === name.toLowerCase(),
+    );
+    if (duplicate) throw new Error(`Já existe um local chamado "${name}"`);
+
+    const updated: Location = { ...current, name };
+    const rowIdx = await this.findRowIndex(SHEETS.locations, "location_id", id);
+    await this.request(
+      `/values/${SHEETS.locations}!A${rowIdx}:B${rowIdx}?valueInputOption=USER_ENTERED`,
+      { method: "PUT", body: JSON.stringify({ values: [[updated.id, updated.name]] }) },
+    );
+    return updated;
   }
 
   async deleteLocation(id: string): Promise<void> {

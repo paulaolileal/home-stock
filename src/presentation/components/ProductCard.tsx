@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { Minus, Plus, Star } from "lucide-react";
-import { needsShopping, useToggleFavorite } from "@/hooks/queries";
+import { needsShopping, useCategories, useLocations, useToggleFavorite } from "@/hooks/queries";
+import { resolveName } from "@/domain/lookup";
+import { formatLocation } from "@/lib/locationFormat";
 import type { Product } from "@/domain/types";
 
 export function ProductCard({
@@ -12,6 +14,8 @@ export function ProductCard({
 }) {
   const low = needsShopping(product);
   const toggleFavorite = useToggleFavorite();
+  const { data: categories = [] } = useCategories();
+  const { data: locations = [] } = useLocations();
 
   return (
     <Link
@@ -30,7 +34,8 @@ export function ProductCard({
           <div className="min-w-0">
             <h3 className="truncate font-semibold text-card-foreground">{product.name}</h3>
             <p className="mt-0.5 truncate text-xs text-muted-foreground">
-              {product.location} • {product.category}
+              {formatLocation(resolveName(locations, product.locationId))} •{" "}
+              {resolveName(categories, product.categoryId)}
             </p>
           </div>
         </div>

@@ -14,8 +14,8 @@ const safeString = (max = 200) =>
 
 export const productInputSchema = z.object({
   name: safeString(120),
-  category: safeString(60),
-  location: safeString(60),
+  categoryId: safeString(60),
+  locationId: safeString(60),
   quantity: z.number().nonnegative(),
   minQuantity: z.number().nonnegative(),
   idealQuantity: z.number().nonnegative(),

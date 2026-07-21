@@ -10,12 +10,15 @@ import {
   useDeleteCategory,
   useDeleteLocation,
   useLocations,
+  useUpdateCategory,
+  useUpdateLocation,
 } from "@/hooks/queries";
 import { useTheme } from "@/presentation/theme/ThemeProvider";
 import { clearSheetProvider } from "@/application/repositoryProvider";
 import { clearAccessToken } from "@/services/googleAuth";
 import { useAuthStore } from "@/store/authStore";
 import { useSpreadsheetStore } from "@/store/spreadsheetStore";
+import { groupLocations, locationLeaf, shouldShowGroupLabel } from "@/lib/locationFormat";
 
 export function SettingsPage() {
   const navigate = useNavigate();
@@ -24,8 +27,10 @@ export function SettingsPage() {
   const { data: categories = [] } = useCategories();
   const { data: locations = [] } = useLocations();
   const createCategory = useCreateCategory();
+  const updateCategory = useUpdateCategory();
   const deleteCategory = useDeleteCategory();
   const createLocation = useCreateLocation();
+  const updateLocation = useUpdateLocation();
   const deleteLocation = useDeleteLocation();
   const { user, clearUser } = useAuthStore();
   const clearSpreadsheetId = useSpreadsheetStore((s) => s.clearSpreadsheetId);
@@ -122,6 +127,12 @@ export function SettingsPage() {
               createCategory.mutate(newCat.trim());
               setNewCat("");
             }}
+            onRename={(id, name) =>
+              updateCategory.mutate(
+                { id, name },
+                { onError: () => toast.error("Não foi possível renomear a categoria") },
+              )
+            }
             onRemove={(id) =>
               deleteCategory.mutate(id, {
                 onError: () => toast.error("Não foi possível remover a categoria"),
@@ -132,8 +143,8 @@ export function SettingsPage() {
         </Section>
 
         <Section title="Locais">
-          <ChipEditor
-            items={locations.map((l) => ({ id: l.id, name: l.name }))}
+          <LocationChipEditor
+            locations={locations}
             value={newLoc}
             onChange={setNewLoc}
             onAdd={() => {
@@ -141,13 +152,21 @@ export function SettingsPage() {
               createLocation.mutate(newLoc.trim());
               setNewLoc("");
             }}
+            onRename={(id, name) =>
+              updateLocation.mutate(
+                { id, name },
+                { onError: () => toast.error("Não foi possível renomear o local") },
+              )
+            }
             onRemove={(id) =>
               deleteLocation.mutate(id, {
                 onError: () => toast.error("Não foi possível remover o local"),
               })
             }
-            placeholder="Novo local..."
           />
+          <p className="mt-3 px-1 text-[11px] text-muted-foreground">
+            Use "Grupo &gt; Local" para organizar por cômodo, como "Cozinha &gt; Geladeira".
+          </p>
         </Section>
 
         <Section title="Sobre">
@@ -205,6 +224,7 @@ function ChipEditor({
   value,
   onChange,
   onAdd,
+  onRename,
   onRemove,
   placeholder,
 }: {
@@ -212,6 +232,7 @@ function ChipEditor({
   value: string;
   onChange: (s: string) => void;
   onAdd: () => void;
+  onRename: (id: string, name: string) => void;
   onRemove: (id: string) => void;
   placeholder: string;
 }) {
@@ -219,42 +240,172 @@ function ChipEditor({
     <div className="space-y-3">
       <div className="flex flex-wrap gap-2">
         {items.map((it) => (
-          <span
+          <EditableChip
             key={it.id}
-            className="inline-flex items-center gap-1 rounded-full bg-surface-2 px-3 py-1 text-xs font-semibold ring-1 ring-border"
-          >
-            {it.name}
-            <button
-              onClick={() => onRemove(it.id)}
-              aria-label={`Remover ${it.name}`}
-              className="grid size-4 place-items-center rounded-full text-muted-foreground hover:text-foreground"
-            >
-              <X className="size-3" strokeWidth={2.4} />
-            </button>
-          </span>
+            id={it.id}
+            name={it.name}
+            onRename={onRename}
+            onRemove={onRemove}
+          />
         ))}
       </div>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          onAdd();
-        }}
-        className="flex items-center gap-2 rounded-2xl bg-surface-2 px-3 py-2 ring-1 ring-border"
-      >
-        <input
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
-          className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-        />
-        <button
-          type="submit"
-          aria-label="Adicionar"
-          className="grid size-7 place-items-center rounded-full bg-foreground text-background"
-        >
-          <Plus className="size-3.5" strokeWidth={2.5} />
-        </button>
-      </form>
+      <AddChipForm value={value} onChange={onChange} onAdd={onAdd} placeholder={placeholder} />
     </div>
+  );
+}
+
+function LocationChipEditor({
+  locations,
+  value,
+  onChange,
+  onAdd,
+  onRename,
+  onRemove,
+}: {
+  locations: { id: string; name: string }[];
+  value: string;
+  onChange: (s: string) => void;
+  onAdd: () => void;
+  onRename: (id: string, name: string) => void;
+  onRemove: (id: string) => void;
+}) {
+  const groups = groupLocations(locations);
+  return (
+    <div className="space-y-3">
+      <div className="space-y-2">
+        {groups.map(({ group, items }) => {
+          const labeled = shouldShowGroupLabel(items);
+          return (
+            <div key={group}>
+              {labeled && (
+                <p className="mb-1 px-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                  {group}
+                </p>
+              )}
+              <div className="flex flex-wrap gap-2">
+                {items.map((it) => (
+                  <EditableChip
+                    key={it.id}
+                    id={it.id}
+                    name={it.name}
+                    displayName={labeled ? locationLeaf(it.name) : it.name}
+                    onRename={onRename}
+                    onRemove={onRemove}
+                  />
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <AddChipForm
+        value={value}
+        onChange={onChange}
+        onAdd={onAdd}
+        placeholder="Novo local... (ex.: Cozinha > Geladeira)"
+      />
+    </div>
+  );
+}
+
+function AddChipForm({
+  value,
+  onChange,
+  onAdd,
+  placeholder,
+}: {
+  value: string;
+  onChange: (s: string) => void;
+  onAdd: () => void;
+  placeholder: string;
+}) {
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        onAdd();
+      }}
+      className="flex items-center gap-2 rounded-2xl bg-surface-2 px-3 py-2 ring-1 ring-border"
+    >
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+      />
+      <button
+        type="submit"
+        aria-label="Adicionar"
+        className="grid size-7 place-items-center rounded-full bg-foreground text-background"
+      >
+        <Plus className="size-3.5" strokeWidth={2.5} />
+      </button>
+    </form>
+  );
+}
+
+function EditableChip({
+  id,
+  name,
+  displayName = name,
+  onRename,
+  onRemove,
+}: {
+  id: string;
+  name: string;
+  displayName?: string;
+  onRename: (id: string, name: string) => void;
+  onRemove: (id: string) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(name);
+
+  function commit() {
+    setEditing(false);
+    const trimmed = draft.trim();
+    if (trimmed && trimmed !== name) onRename(id, trimmed);
+    else setDraft(name);
+  }
+
+  if (editing) {
+    return (
+      <input
+        autoFocus
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        onBlur={commit}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") commit();
+          if (e.key === "Escape") {
+            setDraft(name);
+            setEditing(false);
+          }
+        }}
+        className="w-36 rounded-full bg-surface-2 px-3 py-1 text-xs font-semibold ring-1 ring-ring outline-none"
+      />
+    );
+  }
+
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-surface-2 px-3 py-1 text-xs font-semibold ring-1 ring-border">
+      <button
+        type="button"
+        onClick={() => {
+          setDraft(name);
+          setEditing(true);
+        }}
+        aria-label={`Editar ${displayName}`}
+        className="max-w-[10rem] truncate text-left"
+      >
+        {displayName}
+      </button>
+      <button
+        onClick={() => onRemove(id)}
+        aria-label={`Remover ${displayName}`}
+        className="grid size-4 place-items-center rounded-full text-muted-foreground hover:text-foreground"
+      >
+        <X className="size-3" strokeWidth={2.4} />
+      </button>
+    </span>
   );
 }

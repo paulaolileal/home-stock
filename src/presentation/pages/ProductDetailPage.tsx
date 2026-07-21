@@ -12,6 +12,9 @@ import {
   useUpdateProduct,
 } from "@/hooks/queries";
 import { COMMON_UNITS } from "@/domain/units";
+import { resolveName } from "@/domain/lookup";
+import { formatLocation } from "@/lib/locationFormat";
+import { LocationSelectItems } from "@/presentation/components/LocationSelectItems";
 import {
   Select,
   SelectContent,
@@ -109,7 +112,8 @@ export function ProductDetailPage() {
               {product.name}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              {product.location} • {product.category}
+              {formatLocation(resolveName(locations, product.locationId))} •{" "}
+              {resolveName(categories, product.categoryId)}
             </p>
           </div>
         </div>
@@ -159,9 +163,9 @@ export function ProductDetailPage() {
           <div className="space-y-3 rounded-3xl bg-card p-5 ring-1 ring-border">
             <Row label="Categoria">
               <Select
-                value={product.category}
+                value={product.categoryId}
                 onValueChange={(v) =>
-                  updateProduct.mutate({ id: product.id, patch: { category: v } })
+                  updateProduct.mutate({ id: product.id, patch: { categoryId: v } })
                 }
               >
                 <SelectTrigger className="h-auto w-auto border-0 bg-transparent p-0 text-sm font-semibold shadow-none focus:ring-0 focus:ring-offset-0">
@@ -169,7 +173,7 @@ export function ProductDetailPage() {
                 </SelectTrigger>
                 <SelectContent>
                   {categories.map((c) => (
-                    <SelectItem key={c.id} value={c.name}>
+                    <SelectItem key={c.id} value={c.id}>
                       {c.name}
                     </SelectItem>
                   ))}
@@ -178,20 +182,16 @@ export function ProductDetailPage() {
             </Row>
             <Row label="Local">
               <Select
-                value={product.location}
+                value={product.locationId}
                 onValueChange={(v) =>
-                  updateProduct.mutate({ id: product.id, patch: { location: v } })
+                  updateProduct.mutate({ id: product.id, patch: { locationId: v } })
                 }
               >
                 <SelectTrigger className="h-auto w-auto border-0 bg-transparent p-0 text-sm font-semibold shadow-none focus:ring-0 focus:ring-offset-0">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {locations.map((l) => (
-                    <SelectItem key={l.id} value={l.name}>
-                      {l.name}
-                    </SelectItem>
-                  ))}
+                  <LocationSelectItems locations={locations} />
                 </SelectContent>
               </Select>
             </Row>

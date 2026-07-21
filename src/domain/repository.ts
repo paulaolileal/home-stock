@@ -14,10 +14,12 @@ export interface InventoryRepository {
   // categories
   getCategories(): Promise<Category[]>;
   createCategory(name: string): Promise<Category>;
+  updateCategory(id: string, name: string): Promise<Category>;
   deleteCategory(id: string): Promise<void>;
 
   // locations
   getLocations(): Promise<Location[]>;
   createLocation(name: string): Promise<Location>;
+  updateLocation(id: string, name: string): Promise<Location>;
   deleteLocation(id: string): Promise<void>;
 }

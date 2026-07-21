@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ScanLine, ArrowLeft, ImageOff } from "lucide-react";
 import { toast } from "sonner";
 import { BarcodeScannerModal } from "@/presentation/components/BarcodeScannerModal";
+import { LocationSelectItems } from "@/presentation/components/LocationSelectItems";
 import { useBarcodeLookup } from "@/hooks/useBarcodeLookup";
 import { useCategories, useCreateProduct, useLocations } from "@/hooks/queries";
 import { COMMON_UNITS } from "@/domain/units";
@@ -24,8 +25,8 @@ export function AddProductPage() {
 
   const [scannerOpen, setScannerOpen] = useState(false);
   const [name, setName] = useState("");
-  const [category, setCategory] = useState(categories[0]?.name ?? "Despensa");
-  const [location, setLocation] = useState(locations[0]?.name ?? "Cozinha");
+  const [categoryId, setCategoryId] = useState(categories[0]?.id ?? "");
+  const [locationId, setLocationId] = useState(locations[0]?.id ?? "");
   const [quantity, setQuantity] = useState(1);
   const [min, setMin] = useState(1);
   const [ideal, setIdeal] = useState(3);
@@ -49,7 +50,7 @@ export function AddProductPage() {
     if (found.image) setImage(found.image);
     if (found.category) {
       const match = categories.find((c) => c.name.toLowerCase() === found.category!.toLowerCase());
-      if (match) setCategory(match.name);
+      if (match) setCategoryId(match.id);
     }
     toast.success("Produto encontrado", { description: "Confira os dados antes de salvar." });
   }
@@ -63,8 +64,8 @@ export function AddProductPage() {
     createProduct.mutate(
       {
         name: name.trim(),
-        category,
-        location,
+        categoryId,
+        locationId,
         quantity,
         minQuantity: min,
         idealQuantity: Math.max(min, ideal),
@@ -134,19 +135,15 @@ export function AddProductPage() {
           </Field>
 
           <div className="grid grid-cols-2 gap-3">
-            <SelectField label="Categoria" value={category} onChange={setCategory}>
+            <SelectField label="Categoria" value={categoryId} onChange={setCategoryId}>
               {categories.map((c) => (
-                <SelectItem key={c.id} value={c.name}>
+                <SelectItem key={c.id} value={c.id}>
                   {c.name}
                 </SelectItem>
               ))}
             </SelectField>
-            <SelectField label="Local" value={location} onChange={setLocation}>
-              {locations.map((l) => (
-                <SelectItem key={l.id} value={l.name}>
-                  {l.name}
-                </SelectItem>
-              ))}
+            <SelectField label="Local" value={locationId} onChange={setLocationId}>
+              <LocationSelectItems locations={locations} />
             </SelectField>
           </div>
 

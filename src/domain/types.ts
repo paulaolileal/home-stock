@@ -1,8 +1,8 @@
 export type Product = {
   id: string;
   name: string;
-  category: string;
-  location: string;
+  categoryId: string;
+  locationId: string;
   quantity: number;
   minQuantity: number;
   idealQuantity: number;

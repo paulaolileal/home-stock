@@ -43,6 +43,8 @@ presentation → hooks → domain ← infrastructure
 | `src/domain/types.ts` | `Product`, `Category`, `Location` |
 | `src/domain/repository.ts` | `InventoryRepository` — the contract every backend must implement |
 | `src/domain/schemas.ts` | Zod — input sanitization (strips HTML tags/control chars) |
+| `src/domain/lookup.ts` | `resolveName()` — resolves a `categoryId`/`locationId` to its display name |
+| `src/lib/locationFormat.ts` | Hierarchical location name helpers (`"Cozinha > Geladeira"` → breadcrumb/grouping) |
 | `src/application/repositoryProvider.ts` | Singleton factory, cached by `spreadsheetId` |
 | `src/hooks/queries.ts` | All TanStack Query hooks + mutations; quantity increments are debounced |
 | `src/services/config.ts` | Reads `VITE_GOOGLE_CLIENT_ID`; exposes OAuth scopes |
@@ -76,13 +78,20 @@ to `/404`.
 
 ### Data conventions
 
-- Products reference `category`/`location` by **name** (string), not by id — matches
-  the UI (chips, selects, filters).
+- Products reference `category`/`location` by **id** (`categoryId`/`locationId`),
+  not by name — renaming a category/location is a single write to its own row,
+  never touches product rows. Display code resolves the name via
+  `resolveName()` (`src/domain/lookup.ts`), which falls back to `"—"` if the
+  category/location was deleted.
+- Locations can use a hierarchical name convention, `"Grupo > Local"` (e.g.
+  `"Cozinha > Geladeira"`), rendered as a breadcrumb (`formatLocation`) and
+  grouped in selects/settings (`groupLocations`) — see `src/lib/locationFormat.ts`.
+  This is a display convention on the `name` string, unrelated to id references.
 - Quantity is never negative.
 - The Google Sheets spreadsheet has 3 tabs: `products`, `categories`, `locations`
   (headers defined in `SheetsInitializer.ts`).
-- Deleting a category/location does not touch existing products — they keep the old
-  name string.
+- Deleting a category/location does not touch existing products — they keep the
+  now-dangling id (shown as "—" until re-assigned).
 
 ### Adding mutations
 
