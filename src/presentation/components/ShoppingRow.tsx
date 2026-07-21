@@ -74,8 +74,10 @@ export function ShoppingRow({ product }: { product: Product }) {
       onMouseUp={onEnd}
       onMouseLeave={onEnd}
     >
-      {/* Reveal background */}
+      {/* Reveal background — only visible while dragging, otherwise it bleeds through
+          the foreground row's rounded corners as a color fringe */}
       <div
+        style={{ opacity: dragX === 0 ? 0 : 1 }}
         className={`pointer-events-none absolute inset-0 flex items-center px-6 ${
           revealSide === "left" ? "justify-start bg-accent" : "justify-end bg-muted"
         }`}
