@@ -5,7 +5,7 @@ import { Loader2 } from "lucide-react";
 import { clearSheetProvider } from "@/application/repositoryProvider";
 import { DriveApiClient } from "@/infrastructure/google/DriveApiClient";
 import { SheetsInitializer } from "@/infrastructure/google/SheetsInitializer";
-import { getAccessToken } from "@/services/googleAuth";
+import { ensureAccessToken } from "@/services/googleAuth";
 import { useAuthStore } from "@/store/authStore";
 import { useSpreadsheetStore } from "@/store/spreadsheetStore";
 
@@ -38,8 +38,8 @@ export function SetupPage() {
     connectingRef.current = true;
 
     async function connect() {
-      const drive = new DriveApiClient(getAccessToken);
-      const initializer = new SheetsInitializer(getAccessToken);
+      const drive = new DriveApiClient(ensureAccessToken);
+      const initializer = new SheetsInitializer(ensureAccessToken);
       const found = await drive.listSpreadsheets(SPREADSHEET_TITLE);
 
       let spreadsheetId: string;

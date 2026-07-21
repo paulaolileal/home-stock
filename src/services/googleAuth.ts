@@ -106,6 +106,30 @@ export function getAccessToken(): string | null {
   return null;
 }
 
+let inFlightSilentSignIn: Promise<UserInfo | null> | null = null;
+
+/**
+ * Same as getAccessToken(), but transparently attempts a silent renewal
+ * (Google session cookie, no prompt) before giving up when the cached token
+ * has expired — avoids surfacing "faça login novamente" for a routine
+ * expiry while the user is mid-session on a protected page.
+ *
+ * Concurrent callers (e.g. several queries firing at once right as the token
+ * expires) share a single in-flight silent sign-in instead of each kicking
+ * off their own.
+ */
+export async function ensureAccessToken(): Promise<string | null> {
+  const token = getAccessToken();
+  if (token) return token;
+  if (!inFlightSilentSignIn) {
+    inFlightSilentSignIn = silentSignIn().finally(() => {
+      inFlightSilentSignIn = null;
+    });
+  }
+  await inFlightSilentSignIn;
+  return getAccessToken();
+}
+
 export function clearAccessToken() {
   const token = accessToken;
   accessToken = null;

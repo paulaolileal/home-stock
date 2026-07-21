@@ -7,10 +7,10 @@ export interface DriveFile {
 }
 
 export class DriveApiClient {
-  constructor(private readonly getAccessToken: () => string | null) {}
+  constructor(private readonly ensureAccessToken: () => Promise<string | null>) {}
 
   private async request<T>(path: string, init?: RequestInit): Promise<T> {
-    const token = this.getAccessToken();
+    const token = await this.ensureAccessToken();
     if (!token) throw new Error("Sem token Google — faça login novamente.");
     const res = await fetch(`${DRIVE_API}${path}`, {
       ...init,

@@ -43,10 +43,10 @@ type AddSheetReply = {
 };
 
 export class SheetsInitializer {
-  constructor(private readonly getAccessToken: () => string | null) {}
+  constructor(private readonly ensureAccessToken: () => Promise<string | null>) {}
 
   private async request<T>(url: string, init?: RequestInit): Promise<T> {
-    const token = this.getAccessToken();
+    const token = await this.ensureAccessToken();
     if (!token) throw new Error("Sem token Google — faça login novamente.");
     const res = await fetch(url, {
       ...init,

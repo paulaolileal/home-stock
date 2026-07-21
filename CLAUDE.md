@@ -48,7 +48,7 @@ presentation → hooks → domain ← infrastructure
 | `src/application/repositoryProvider.ts` | Singleton factory, cached by `spreadsheetId` |
 | `src/hooks/queries.ts` | All TanStack Query hooks + mutations; quantity increments are debounced |
 | `src/services/config.ts` | Reads `VITE_GOOGLE_CLIENT_ID`; exposes OAuth scopes |
-| `src/services/googleAuth.ts` | Google Identity Services OAuth flow; access token lives **in memory only** + mirrored to `sessionStorage`, never `localStorage` |
+| `src/services/googleAuth.ts` | Google Identity Services OAuth flow; access token lives **in memory only** + mirrored to `sessionStorage`, never `localStorage`. `ensureAccessToken()` is the async variant all repository/API clients use — it transparently retries a silent sign-in (no prompt) before giving up when the cached token expired; concurrent callers share one in-flight attempt. Plain `getAccessToken()` (sync, no renewal) is only for render-time checks (`ProtectedRoute`, `LoginPage`) |
 | `src/store/authStore.ts` | Zustand+persist: logged-in `UserInfo` |
 | `src/store/spreadsheetStore.ts` | Zustand+persist: `spreadsheetId` per user e-mail |
 | `src/infrastructure/google/GoogleSheetsRepository.ts` | CRUD against Sheets API v4 (raw `fetch`, no SDK) |

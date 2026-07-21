@@ -43,7 +43,7 @@ const PRODUCT_HEADERS = [
 
 export interface GoogleSheetsConfig {
   spreadsheetId: string;
-  getAccessToken: () => string | null;
+  ensureAccessToken: () => Promise<string | null>;
 }
 
 export class GoogleSheetsRepository implements InventoryRepository {
@@ -77,7 +77,7 @@ export class GoogleSheetsRepository implements InventoryRepository {
   }
 
   private async request<T>(path: string, init?: RequestInit): Promise<T> {
-    const token = this.cfg.getAccessToken();
+    const token = await this.cfg.ensureAccessToken();
     if (!token) throw new Error("Sem token Google — faça login novamente.");
     const res = await fetch(`${API}/${this.cfg.spreadsheetId}${path}`, {
       ...init,
