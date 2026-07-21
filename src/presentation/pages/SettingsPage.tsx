@@ -324,17 +324,24 @@ function LocationChipEditor({
   const groups = groupLocations(locations);
   return (
     <div className="space-y-3">
-      <div className="space-y-2">
+      <div className="space-y-2.5">
         {groups.map(({ group, items }) => {
           const labeled = shouldShowGroupLabel(items);
           return (
-            <div key={group}>
+            <div
+              key={group}
+              className={cn(labeled && "rounded-2xl bg-background/70 p-2.5 ring-1 ring-border/60")}
+            >
               {labeled && (
-                <p className="mb-1 px-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                <p className="mb-1.5 flex items-center gap-1.5 px-0.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                  <span className="size-1.5 shrink-0 rounded-full bg-primary/60" />
                   {group}
+                  <span className="font-medium normal-case tracking-normal text-muted-foreground/70">
+                    ({items.length})
+                  </span>
                 </p>
               )}
-              <div className="flex flex-wrap gap-2">
+              <div className={cn("flex flex-wrap gap-2", labeled && "pl-3")}>
                 {items.map((it) => (
                   <EditableChip
                     key={it.id}

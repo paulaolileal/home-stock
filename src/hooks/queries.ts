@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { getSheetProvider } from "@/application/repositoryProvider";
 import type { Category, Location, Product } from "@/domain/types";
+import { compareNames } from "@/lib/utils";
 
 const repo = () => getSheetProvider();
 
@@ -25,6 +26,7 @@ export function useCategories() {
     queryKey: qk.categories,
     queryFn: () => repo().getCategories(),
     staleTime: 10 * 60_000,
+    select: (categories) => [...categories].sort((a, b) => compareNames(a.name, b.name)),
   });
 }
 
@@ -33,6 +35,7 @@ export function useLocations() {
     queryKey: qk.locations,
     queryFn: () => repo().getLocations(),
     staleTime: 10 * 60_000,
+    select: (locations) => [...locations].sort((a, b) => compareNames(a.name, b.name)),
   });
 }
 

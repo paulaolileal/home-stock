@@ -11,4 +11,5 @@ export const COMMON_UNITS = [
   "rolos",
   "pares",
   "dúzia",
+  "fatia(s)",
 ] as const;
