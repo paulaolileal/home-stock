@@ -3,6 +3,9 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 type ThemeMode = "light" | "dark" | "system";
 
 const KEY = "hi.theme";
+// Mirror --background (light/dark) from src/styles.css.
+const THEME_COLOR_LIGHT = "#fafafa";
+const THEME_COLOR_DARK = "#07090c";
 
 type Ctx = {
   mode: ThemeMode;
@@ -19,6 +22,11 @@ function apply(mode: ThemeMode): "light" | "dark" {
   const root = document.documentElement;
   if (resolved === "dark") root.classList.add("dark");
   else root.classList.remove("dark");
+
+  document
+    .querySelector('meta[name="theme-color"]')
+    ?.setAttribute("content", resolved === "dark" ? THEME_COLOR_DARK : THEME_COLOR_LIGHT);
+
   return resolved;
 }
 

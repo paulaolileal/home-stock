@@ -14,6 +14,7 @@ import {
   useUpdateLocation,
 } from "@/hooks/queries";
 import { useTheme } from "@/presentation/theme/ThemeProvider";
+import { InstallAppCard } from "@/presentation/components/InstallAppCard";
 import { clearSheetProvider } from "@/application/repositoryProvider";
 import { clearAccessToken } from "@/services/googleAuth";
 import { useAuthStore } from "@/store/authStore";
@@ -190,6 +191,8 @@ export function SettingsPage() {
               Versão 1.0.0 — seus dados ficam na sua planilha do Google Sheets.
             </p>
           </div>
+
+          <InstallAppCard />
 
           <a
             href="https://lealtek.com"
