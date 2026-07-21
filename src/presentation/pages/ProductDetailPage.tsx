@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Minus, Plus, Star, Trash2 } from "lucide-react";
+import { ArrowLeft, Minus, Plus, ShoppingCart, Star, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   useCategories,
@@ -65,6 +65,22 @@ export function ProductDetailPage() {
         </button>
         <div className="flex gap-2">
           <button
+            onClick={() =>
+              updateProduct.mutate({ id: product.id, patch: { wanted: !product.wanted } })
+            }
+            aria-label={
+              product.wanted ? "Remover da lista de compras" : "Adicionar à lista de compras"
+            }
+            className={`inline-flex size-9 items-center justify-center rounded-full ring-1 ring-border ${
+              product.wanted ? "bg-accent/10 text-accent" : "bg-surface-2"
+            }`}
+          >
+            <ShoppingCart
+              className={`size-4 ${product.wanted ? "fill-accent/20" : ""}`}
+              strokeWidth={2}
+            />
+          </button>
+          <button
             onClick={() => toggleFavorite.mutate(product)}
             aria-label="Favoritar"
             className="inline-flex size-9 items-center justify-center rounded-full bg-surface-2 ring-1 ring-border"
@@ -107,6 +123,11 @@ export function ProductDetailPage() {
           {low && (
             <span className="inline-block rounded-full bg-alert/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-alert">
               Baixo estoque
+            </span>
+          )}
+          {!low && product.wanted && (
+            <span className="inline-block rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-accent">
+              Na lista de compras
             </span>
           )}
           <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-balance">

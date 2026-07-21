@@ -25,6 +25,7 @@ export const productInputSchema = z.object({
   image: z.string().trim().url().optional(),
   favorite: z.boolean().default(false),
   inCart: z.boolean().optional(),
+  wanted: z.boolean().optional(),
 });
 
 export const categoryNameSchema = safeString(60);

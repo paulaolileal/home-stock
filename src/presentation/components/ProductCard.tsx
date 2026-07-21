@@ -1,6 +1,12 @@
 import { Link } from "react-router-dom";
-import { Minus, Plus, Star } from "lucide-react";
-import { needsShopping, useCategories, useLocations, useToggleFavorite } from "@/hooks/queries";
+import { Minus, Plus, ShoppingCart, Star } from "lucide-react";
+import {
+  needsShopping,
+  useCategories,
+  useLocations,
+  useToggleFavorite,
+  useUpdateProduct,
+} from "@/hooks/queries";
 import { resolveName } from "@/domain/lookup";
 import { formatLocation } from "@/lib/locationFormat";
 import type { Product } from "@/domain/types";
@@ -14,6 +20,7 @@ export function ProductCard({
 }) {
   const low = needsShopping(product);
   const toggleFavorite = useToggleFavorite();
+  const updateProduct = useUpdateProduct();
   const { data: categories = [] } = useCategories();
   const { data: locations = [] } = useLocations();
 
@@ -45,6 +52,24 @@ export function ProductCard({
               Baixo
             </span>
           )}
+          <button
+            type="button"
+            aria-label={
+              product.wanted ? "Remover da lista de compras" : "Adicionar à lista de compras"
+            }
+            onClick={(e) => {
+              e.preventDefault();
+              updateProduct.mutate({ id: product.id, patch: { wanted: !product.wanted } });
+            }}
+            className={`grid size-8 place-items-center rounded-full transition-colors ${
+              product.wanted ? "text-accent" : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <ShoppingCart
+              className={`size-4 ${product.wanted ? "fill-accent/20" : ""}`}
+              strokeWidth={2}
+            />
+          </button>
           <button
             type="button"
             aria-label={product.favorite ? "Remover dos favoritos" : "Favoritar"}

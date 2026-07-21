@@ -99,14 +99,35 @@ export function useToggleFavorite() {
 export function useSetInCart() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, inCart, quantity }: { id: string; inCart: boolean; quantity?: number }) =>
-      repo().updateProduct(id, quantity == null ? { inCart } : { inCart, quantity }),
-    onMutate: async ({ id, inCart, quantity }) => {
+    mutationFn: ({
+      id,
+      inCart,
+      quantity,
+      wanted,
+    }: {
+      id: string;
+      inCart: boolean;
+      quantity?: number;
+      wanted?: boolean;
+    }) =>
+      repo().updateProduct(id, {
+        inCart,
+        ...(quantity == null ? {} : { quantity }),
+        ...(wanted == null ? {} : { wanted }),
+      }),
+    onMutate: async ({ id, inCart, quantity, wanted }) => {
       await qc.cancelQueries({ queryKey: qk.products });
       const previous = qc.getQueryData<Product[]>(qk.products);
       qc.setQueryData<Product[]>(qk.products, (old) =>
         old?.map((p) =>
-          p.id === id ? { ...p, inCart, ...(quantity == null ? {} : { quantity }) } : p,
+          p.id === id
+            ? {
+                ...p,
+                inCart,
+                ...(quantity == null ? {} : { quantity }),
+                ...(wanted == null ? {} : { wanted }),
+              }
+            : p,
         ),
       );
       return { previous };

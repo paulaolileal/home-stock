@@ -23,6 +23,7 @@ const SHEET_SPECS: SheetSpec[] = [
       "favorite",
       "in_cart",
       "updated_at",
+      "wanted",
     ],
   },
   {

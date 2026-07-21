@@ -12,6 +12,7 @@ export type Product = {
   image?: string;
   favorite: boolean;
   inCart?: boolean;
+  wanted?: boolean;
   updatedAt: string;
 };
 

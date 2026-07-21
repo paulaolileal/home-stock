@@ -6,7 +6,10 @@ import { needsShopping, useProducts } from "@/hooks/queries";
 export function ShoppingListPage() {
   const { data: products = [] } = useProducts();
 
-  const list = useMemo(() => products.filter((p) => needsShopping(p) || p.inCart), [products]);
+  const list = useMemo(
+    () => products.filter((p) => needsShopping(p) || p.wanted || p.inCart),
+    [products],
+  );
   const remaining = list.filter((p) => !p.inCart);
   const inCart = list.filter((p) => p.inCart);
   const total = list.length;
@@ -84,7 +87,8 @@ function Empty() {
       </div>
       <p className="mt-4 text-sm font-semibold text-foreground">Nada faltando</p>
       <p className="mt-1 text-xs text-muted-foreground">
-        Sua despensa está em dia. A lista aparece quando um item fica abaixo do mínimo.
+        Sua despensa está em dia. A lista aparece quando um item fica abaixo do mínimo ou é
+        adicionado manualmente pelo produto.
       </p>
     </div>
   );

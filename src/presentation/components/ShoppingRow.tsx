@@ -21,7 +21,12 @@ export function ShoppingRow({ product }: { product: Product }) {
   const target = storedTarget ?? missing;
 
   const confirmPurchase = () => {
-    setInCart.mutate({ id: product.id, inCart: true, quantity: product.quantity + target });
+    setInCart.mutate({
+      id: product.id,
+      inCart: true,
+      quantity: product.quantity + target,
+      wanted: false,
+    });
     clearTarget(product.id);
   };
 

@@ -96,6 +96,17 @@ to `/404`.
   (headers defined in `SheetsInitializer.ts`).
 - Deleting a category/location does not touch existing products — they keep the
   now-dangling id (shown as "—" until re-assigned).
+- The shopping list (`/compras`) shows a product when `needsShopping()` (quantity
+  below `minQuantity`) **or** `wanted` **or** `inCart` is true. `wanted` lets a
+  product be added to the list on demand regardless of stock thresholds (e.g. an
+  item with no minimum kept, like a one-off produce purchase); toggled from
+  `ProductCard`/`ProductDetailPage`. `inCart` means "already picked up during this
+  shopping trip" (checked off, struck through) — set together with a quantity bump
+  when `ShoppingRow.confirmPurchase()` runs, which also clears `wanted`. Product
+  sheet columns are append-only: new fields must be added at the **end** of the
+  `products` headers array (both in `SheetsInitializer.ts` and
+  `GoogleSheetsRepository.ts`) so existing users' spreadsheets don't get their
+  columns shifted.
 
 ### Adding mutations
 

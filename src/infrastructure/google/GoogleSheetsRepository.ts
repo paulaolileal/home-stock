@@ -38,6 +38,7 @@ const PRODUCT_HEADERS = [
   "favorite",
   "in_cart",
   "updated_at",
+  "wanted",
 ];
 
 export interface GoogleSheetsConfig {
@@ -138,6 +139,7 @@ export class GoogleSheetsRepository implements InventoryRepository {
       image: r.image || undefined,
       favorite: r.favorite === "true",
       inCart: r.in_cart === "true",
+      wanted: r.wanted === "true",
       updatedAt: r.updated_at,
     };
   }
@@ -158,6 +160,7 @@ export class GoogleSheetsRepository implements InventoryRepository {
       String(p.favorite),
       String(!!p.inCart),
       p.updatedAt,
+      String(!!p.wanted),
     ];
   }
 
