@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { Check, Minus, Plus } from "lucide-react";
-import { useSetInCart } from "@/hooks/queries";
+import { needsShopping, useSetInCart } from "@/hooks/queries";
 import type { Product } from "@/domain/types";
 
 const THRESHOLD = 80;
@@ -14,6 +14,8 @@ export function ShoppingRow({
 }) {
   const inCart = !!product.inCart;
   const setInCart = useSetInCart();
+  const isLow = needsShopping(product);
+  const missing = Math.max(0, product.idealQuantity - product.quantity);
   const [dragX, setDragX] = useState(0);
   const startX = useRef<number | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -31,7 +33,7 @@ export function ShoppingRow({
   const onEnd = () => {
     if (startX.current == null) return;
     if (!inCart && dragX > THRESHOLD) {
-      setInCart.mutate({ id: product.id, inCart: true });
+      setInCart.mutate({ id: product.id, inCart: true, quantity: product.idealQuantity });
       if (navigator.vibrate) navigator.vibrate(10);
     } else if (inCart && dragX < -THRESHOLD) {
       setInCart.mutate({ id: product.id, inCart: false });
@@ -83,7 +85,13 @@ export function ShoppingRow({
         <button
           type="button"
           aria-label={inCart ? "Remover do carrinho" : "Marcar como comprado"}
-          onClick={() => setInCart.mutate({ id: product.id, inCart: !inCart })}
+          onClick={() =>
+            setInCart.mutate(
+              inCart
+                ? { id: product.id, inCart: false }
+                : { id: product.id, inCart: true, quantity: product.idealQuantity },
+            )
+          }
           className={`grid size-7 shrink-0 place-items-center rounded-lg border-2 transition-all ${
             inCart
               ? "border-accent bg-accent text-accent-foreground"
@@ -93,6 +101,14 @@ export function ShoppingRow({
           {inCart && <Check className="size-4" strokeWidth={3} />}
         </button>
 
+        {product.image && (
+          <img
+            src={product.image}
+            alt=""
+            className="size-9 shrink-0 rounded-lg object-cover ring-1 ring-border"
+          />
+        )}
+
         <div className="min-w-0 flex-1">
           <p
             className={`truncate text-sm font-semibold ${
@@ -101,9 +117,12 @@ export function ShoppingRow({
           >
             {product.name}
           </p>
+          {product.notes && (
+            <p className="truncate text-[10px] italic text-muted-foreground">({product.notes})</p>
+          )}
           <p className="truncate text-[10px] text-muted-foreground">
-            {product.location} • falta {Math.max(0, product.idealQuantity - product.quantity)}{" "}
-            {product.unit}
+            {product.location} • tem {product.quantity} {product.unit}
+            {isLow && " • em baixa"}
           </p>
         </div>
 
@@ -118,7 +137,7 @@ export function ShoppingRow({
             <Minus className="size-3.5" strokeWidth={2.5} />
           </button>
           <span className="w-8 text-center font-mono text-xs font-bold tabular-nums">
-            {product.quantity}
+            {missing}
           </span>
           <button
             type="button"
