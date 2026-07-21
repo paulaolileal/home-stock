@@ -181,6 +181,23 @@ export function ProductDetailPage() {
 
         {editing && (
           <div className="space-y-3 rounded-3xl bg-card p-5 ring-1 ring-border">
+            <label className="block rounded-xl bg-surface-2 px-4 py-3 ring-1 ring-border">
+              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Nome
+              </span>
+              <input
+                defaultValue={product.name}
+                onBlur={(e) => {
+                  const name = e.target.value.trim();
+                  if (name && name !== product.name) {
+                    updateProduct.mutate({ id: product.id, patch: { name } });
+                  } else {
+                    e.target.value = product.name;
+                  }
+                }}
+                className="mt-1 w-full bg-transparent text-sm font-semibold outline-none"
+              />
+            </label>
             <Row label="Categoria">
               <Select
                 value={product.categoryId}
