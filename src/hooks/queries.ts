@@ -2,7 +2,7 @@ import { useCallback, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { getSheetProvider } from "@/application/repositoryProvider";
-import type { Product } from "@/domain/types";
+import type { Category, Location, Product } from "@/domain/types";
 
 const repo = () => getSheetProvider();
 
@@ -179,7 +179,11 @@ export function useCreateCategory() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (name: string) => repo().createCategory(name),
-    onSuccess: () => qc.invalidateQueries({ queryKey: qk.categories }),
+    onSuccess: (category) => {
+      qc.setQueryData<Category[]>(qk.categories, (old) =>
+        old?.some((c) => c.id === category.id) ? old : [...(old ?? []), category],
+      );
+    },
     onError: (e: Error) => toast.error(e.message),
   });
 }
@@ -206,7 +210,11 @@ export function useCreateLocation() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (name: string) => repo().createLocation(name),
-    onSuccess: () => qc.invalidateQueries({ queryKey: qk.locations }),
+    onSuccess: (location) => {
+      qc.setQueryData<Location[]>(qk.locations, (old) =>
+        old?.some((l) => l.id === location.id) ? old : [...(old ?? []), location],
+      );
+    },
     onError: (e: Error) => toast.error(e.message),
   });
 }
