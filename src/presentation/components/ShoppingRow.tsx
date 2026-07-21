@@ -1,21 +1,27 @@
 import { useRef, useState } from "react";
 import { Check, Minus, Plus } from "lucide-react";
 import { needsShopping, useSetInCart } from "@/hooks/queries";
+import { useShoppingListStore } from "@/store/shoppingListStore";
 import type { Product } from "@/domain/types";
 
 const THRESHOLD = 80;
 
-export function ShoppingRow({
-  product,
-  onIncrement,
-}: {
-  product: Product;
-  onIncrement: (id: string, delta: number) => void;
-}) {
+export function ShoppingRow({ product }: { product: Product }) {
   const inCart = !!product.inCart;
   const setInCart = useSetInCart();
   const isLow = needsShopping(product);
   const missing = Math.max(0, product.idealQuantity - product.quantity);
+
+  const storedTarget = useShoppingListStore((s) => s.targetQuantities[product.id]);
+  const setTarget = useShoppingListStore((s) => s.setTarget);
+  const clearTarget = useShoppingListStore((s) => s.clearTarget);
+  const target = storedTarget ?? missing;
+
+  const confirmPurchase = () => {
+    setInCart.mutate({ id: product.id, inCart: true, quantity: product.quantity + target });
+    clearTarget(product.id);
+  };
+
   const [dragX, setDragX] = useState(0);
   const startX = useRef<number | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -33,7 +39,7 @@ export function ShoppingRow({
   const onEnd = () => {
     if (startX.current == null) return;
     if (!inCart && dragX > THRESHOLD) {
-      setInCart.mutate({ id: product.id, inCart: true, quantity: product.idealQuantity });
+      confirmPurchase();
       if (navigator.vibrate) navigator.vibrate(10);
     } else if (inCart && dragX < -THRESHOLD) {
       setInCart.mutate({ id: product.id, inCart: false });
@@ -86,11 +92,7 @@ export function ShoppingRow({
           type="button"
           aria-label={inCart ? "Remover do carrinho" : "Marcar como comprado"}
           onClick={() =>
-            setInCart.mutate(
-              inCart
-                ? { id: product.id, inCart: false }
-                : { id: product.id, inCart: true, quantity: product.idealQuantity },
-            )
+            inCart ? setInCart.mutate({ id: product.id, inCart: false }) : confirmPurchase()
           }
           className={`grid size-7 shrink-0 place-items-center rounded-lg border-2 transition-all ${
             inCart
@@ -129,20 +131,18 @@ export function ShoppingRow({
         <div className="flex items-center rounded-lg bg-surface-2 p-0.5 ring-1 ring-border">
           <button
             type="button"
-            aria-label="Diminuir"
-            onClick={() => onIncrement(product.id, -1)}
-            disabled={product.quantity <= 0}
+            aria-label="Diminuir quantidade a comprar"
+            onClick={() => setTarget(product.id, Math.max(0, target - 1))}
+            disabled={target <= 0}
             className="grid size-8 place-items-center rounded-md active:scale-90 disabled:opacity-40"
           >
             <Minus className="size-3.5" strokeWidth={2.5} />
           </button>
-          <span className="w-8 text-center font-mono text-xs font-bold tabular-nums">
-            {missing}
-          </span>
+          <span className="w-8 text-center font-mono text-xs font-bold tabular-nums">{target}</span>
           <button
             type="button"
-            aria-label="Aumentar"
-            onClick={() => onIncrement(product.id, 1)}
+            aria-label="Aumentar quantidade a comprar"
+            onClick={() => setTarget(product.id, target + 1)}
             className="grid size-8 place-items-center rounded-md bg-foreground text-background active:scale-90"
           >
             <Plus className="size-3.5" strokeWidth={2.5} />

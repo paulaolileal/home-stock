@@ -1,11 +1,10 @@
 import { useMemo } from "react";
 import { PartyPopper } from "lucide-react";
 import { ShoppingRow } from "@/presentation/components/ShoppingRow";
-import { needsShopping, useIncrementProduct, useProducts } from "@/hooks/queries";
+import { needsShopping, useProducts } from "@/hooks/queries";
 
 export function ShoppingListPage() {
   const { data: products = [] } = useProducts();
-  const incrementProduct = useIncrementProduct();
 
   const list = useMemo(() => products.filter((p) => needsShopping(p) || p.inCart), [products]);
   const remaining = list.filter((p) => !p.inCart);
@@ -46,7 +45,7 @@ export function ShoppingListPage() {
                 </h2>
                 <div className="space-y-2 animate-slide-up">
                   {remaining.map((p) => (
-                    <ShoppingRow key={p.id} product={p} onIncrement={incrementProduct} />
+                    <ShoppingRow key={p.id} product={p} />
                   ))}
                 </div>
               </section>
@@ -61,7 +60,7 @@ export function ShoppingListPage() {
                 </h2>
                 <div className="space-y-2">
                   {inCart.map((p) => (
-                    <ShoppingRow key={p.id} product={p} onIncrement={incrementProduct} />
+                    <ShoppingRow key={p.id} product={p} />
                   ))}
                 </div>
               </section>
