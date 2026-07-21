@@ -188,6 +188,8 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
   }
   body {
     overscroll-behavior-y: contain;
@@ -195,6 +197,27 @@
   ::selection {
     background: var(--color-accent);
     color: var(--color-accent-foreground);
+  }
+
+  input,
+  textarea,
+  select,
+  [contenteditable="true"] {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+
+  button:not(:disabled),
+  a[href],
+  label,
+  select,
+  summary,
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+  button:disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
   }
 
   * {
