@@ -190,9 +190,9 @@
     -webkit-tap-highlight-color: transparent;
     -webkit-user-select: none;
     user-select: none;
-    overflow-x: hidden;
   }
   body {
+    overflow-x: hidden;
     overscroll-behavior-y: contain;
   }
   ::selection {

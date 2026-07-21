@@ -109,7 +109,7 @@ export function InventoryPage() {
         ) : filtered.length === 0 ? (
           <EmptyState />
         ) : (
-          <div className="grid gap-3 lg:grid-cols-2 lg:gap-4 xl:grid-cols-3 animate-slide-up [animation-delay:160ms]">
+          <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 lg:gap-4 xl:grid-cols-3 animate-slide-up [animation-delay:160ms]">
             {filtered.map((p) => (
               <ProductCard key={p.id} product={p} onIncrement={incrementProduct} />
             ))}

@@ -82,17 +82,17 @@ export function ProductCard({
         </div>
       </div>
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-baseline gap-1 font-mono text-sm">
-          <span className={`font-bold ${low ? "text-alert" : "text-foreground"}`}>
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex min-w-0 items-baseline gap-1 font-mono text-sm">
+          <span className={`shrink-0 font-bold ${low ? "text-alert" : "text-foreground"}`}>
             {product.quantity}
           </span>
-          <span className="text-muted-foreground">/ {product.idealQuantity}</span>
-          <span className="ml-1 text-xs text-muted-foreground">{product.unit}</span>
+          <span className="shrink-0 text-muted-foreground">/ {product.idealQuantity}</span>
+          <span className="ml-1 truncate text-xs text-muted-foreground">{product.unit}</span>
         </div>
 
         <div
-          className="flex items-center rounded-xl bg-surface-2 p-1 ring-1 ring-border"
+          className="flex shrink-0 items-center rounded-xl bg-surface-2 p-1 ring-1 ring-border"
           onClick={(e) => e.preventDefault()}
         >
           <button
