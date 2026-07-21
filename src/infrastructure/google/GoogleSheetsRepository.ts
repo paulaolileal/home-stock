@@ -164,9 +164,9 @@ export class GoogleSheetsRepository implements InventoryRepository {
       notes: r.notes || undefined,
       barcode: r.barcode || undefined,
       image: r.image || undefined,
-      favorite: r.favorite === "true",
-      inCart: r.in_cart === "true",
-      wanted: r.wanted === "true",
+      favorite: parseBool(r.favorite),
+      inCart: parseBool(r.in_cart),
+      wanted: parseBool(r.wanted),
       updatedAt: r.updated_at,
     };
   }
@@ -332,6 +332,15 @@ export class GoogleSheetsRepository implements InventoryRepository {
   async deleteLocation(id: string): Promise<void> {
     await this.deleteRow(SHEETS.locations, "location_id", id);
   }
+}
+
+/**
+ * Sheets stores a "true"/"false" string written with USER_ENTERED as a real
+ * boolean cell, and values.get returns it formatted back as "TRUE"/"FALSE"
+ * (uppercase) — so the comparison must be case-insensitive.
+ */
+function parseBool(v: string | undefined): boolean {
+  return (v ?? "").trim().toLowerCase() === "true";
 }
 
 /** Converts a 1-indexed column number to its A1 letter (1 -> A, 14 -> N, 27 -> AA). */
