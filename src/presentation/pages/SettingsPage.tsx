@@ -13,7 +13,7 @@ import {
   useUpdateCategory,
   useUpdateLocation,
 } from "@/hooks/queries";
-import { useTheme } from "@/presentation/theme/ThemeProvider";
+import { useTheme } from "@/presentation/theme/useTheme";
 import { InstallAppCard } from "@/presentation/components/InstallAppCard";
 import { clearSheetProvider } from "@/application/repositoryProvider";
 import { clearAccessToken } from "@/services/googleAuth";

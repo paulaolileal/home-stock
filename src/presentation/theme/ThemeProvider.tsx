@@ -1,19 +1,10 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-
-type ThemeMode = "light" | "dark" | "system";
+import { useEffect, useState, type ReactNode } from "react";
+import { ThemeContext, type ThemeMode } from "./ThemeContext";
 
 const KEY = "hi.theme";
 // Mirror --background (light/dark) from src/styles.css.
 const THEME_COLOR_LIGHT = "#fafafa";
 const THEME_COLOR_DARK = "#07090c";
-
-type Ctx = {
-  mode: ThemeMode;
-  resolved: "light" | "dark";
-  setMode: (m: ThemeMode) => void;
-};
-
-const ThemeContext = createContext<Ctx | null>(null);
 
 function apply(mode: ThemeMode): "light" | "dark" {
   if (typeof window === "undefined") return "light";
@@ -56,10 +47,4 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   return (
     <ThemeContext.Provider value={{ mode, resolved, setMode }}>{children}</ThemeContext.Provider>
   );
-}
-
-export function useTheme() {
-  const ctx = useContext(ThemeContext);
-  if (!ctx) throw new Error("useTheme must be used within ThemeProvider");
-  return ctx;
 }

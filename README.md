@@ -55,32 +55,32 @@ presentation → hooks → domain ← infrastructure
 
 ### Arquivos-chave
 
-| Caminho | Papel |
-|---|---|
-| `src/domain/types.ts` | `Product`, `Category`, `Location` |
-| `src/domain/repository.ts` | `InventoryRepository` — contrato único |
-| `src/domain/schemas.ts` | Validação/sanitização (Zod) |
-| `src/application/repositoryProvider.ts` | Factory com cache do repositório ativo |
-| `src/hooks/queries.ts` | Queries e mutações (TanStack Query), incremento de quantidade com debounce |
-| `src/services/googleAuth.ts` | OAuth implícito (Google Identity Services) — token só em memória/`sessionStorage` |
-| `src/store/authStore.ts`, `spreadsheetStore.ts` | Zustand + persist: usuário logado e `spreadsheetId` por e-mail |
-| `src/infrastructure/google/GoogleSheetsRepository.ts` | CRUD contra a Sheets API v4 |
-| `src/infrastructure/google/DriveApiClient.ts`, `SheetsInitializer.ts` | Cria/localiza a planilha e a pasta do usuário no Drive |
-| `src/infrastructure/openfoodfacts/OpenFoodFactsClient.ts` | Lookup público de metadados por código de barras |
-| `src/presentation/components/BarcodeScannerModal.tsx` | Câmera + detecção de código de barras |
+| Caminho                                                               | Papel                                                                             |
+| --------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `src/domain/types.ts`                                                 | `Product`, `Category`, `Location`                                                 |
+| `src/domain/repository.ts`                                            | `InventoryRepository` — contrato único                                            |
+| `src/domain/schemas.ts`                                               | Validação/sanitização (Zod)                                                       |
+| `src/application/repositoryProvider.ts`                               | Factory com cache do repositório ativo                                            |
+| `src/hooks/queries.ts`                                                | Queries e mutações (TanStack Query), incremento de quantidade com debounce        |
+| `src/services/googleAuth.ts`                                          | OAuth implícito (Google Identity Services) — token só em memória/`sessionStorage` |
+| `src/store/authStore.ts`, `spreadsheetStore.ts`                       | Zustand + persist: usuário logado e `spreadsheetId` por e-mail                    |
+| `src/infrastructure/google/GoogleSheetsRepository.ts`                 | CRUD contra a Sheets API v4                                                       |
+| `src/infrastructure/google/DriveApiClient.ts`, `SheetsInitializer.ts` | Cria/localiza a planilha e a pasta do usuário no Drive                            |
+| `src/infrastructure/openfoodfacts/OpenFoodFactsClient.ts`             | Lookup público de metadados por código de barras                                  |
+| `src/presentation/components/BarcodeScannerModal.tsx`                 | Câmera + detecção de código de barras                                             |
 
 ### Rotas
 
-| Caminho | Página |
-|---|---|
-| `/login` | Login com Google |
-| `/setup` | Cria/associa a planilha do usuário (roda uma vez, após o primeiro login) |
-| `/` | Inventário |
-| `/adicionar` | Adicionar produto (com scanner de código de barras) |
-| `/buscar` | Busca |
-| `/compras` | Lista de compras |
-| `/produto/:id` | Detalhe/edição do produto |
-| `/configuracoes` | Tema, categorias, locais, conta Google |
+| Caminho          | Página                                                                   |
+| ---------------- | ------------------------------------------------------------------------ |
+| `/login`         | Login com Google                                                         |
+| `/setup`         | Cria/associa a planilha do usuário (roda uma vez, após o primeiro login) |
+| `/`              | Inventário                                                               |
+| `/adicionar`     | Adicionar produto (com scanner de código de barras)                      |
+| `/buscar`        | Busca                                                                    |
+| `/compras`       | Lista de compras                                                         |
+| `/produto/:id`   | Detalhe/edição do produto                                                |
+| `/configuracoes` | Tema, categorias, locais, conta Google                                   |
 
 ### Convenções de dados
 
