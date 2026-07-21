@@ -178,7 +178,8 @@ export function useIncrementProduct() {
 export function useCreateCategory() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (name: string) => repo().createCategory(name),
+    mutationFn: ({ name, emoji }: { name: string; emoji?: string }) =>
+      repo().createCategory(name, emoji),
     onSuccess: (category) => {
       qc.setQueryData<Category[]>(qk.categories, (old) =>
         old?.some((c) => c.id === category.id) ? old : [...(old ?? []), category],
@@ -191,7 +192,8 @@ export function useCreateCategory() {
 export function useUpdateCategory() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, name }: { id: string; name: string }) => repo().updateCategory(id, name),
+    mutationFn: ({ id, name, emoji }: { id: string; name?: string; emoji?: string }) =>
+      repo().updateCategory(id, { name, emoji }),
     onSuccess: () => qc.invalidateQueries({ queryKey: qk.categories }),
     onError: (e: Error) => toast.error(e.message),
   });

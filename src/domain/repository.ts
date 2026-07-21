@@ -13,8 +13,8 @@ export interface InventoryRepository {
 
   // categories
   getCategories(): Promise<Category[]>;
-  createCategory(name: string): Promise<Category>;
-  updateCategory(id: string, name: string): Promise<Category>;
+  createCategory(name: string, emoji?: string): Promise<Category>;
+  updateCategory(id: string, patch: { name?: string; emoji?: string }): Promise<Category>;
   deleteCategory(id: string): Promise<void>;
 
   // locations

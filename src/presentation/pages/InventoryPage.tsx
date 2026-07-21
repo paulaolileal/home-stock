@@ -8,7 +8,7 @@ import {
   useLocations,
   useProducts,
 } from "@/hooks/queries";
-import { resolveName } from "@/domain/lookup";
+import { resolveName, withEmoji } from "@/domain/lookup";
 
 export function InventoryPage() {
   const { data: products = [], isLoading } = useProducts();
@@ -96,7 +96,7 @@ export function InventoryPage() {
           {categories.map((c) => (
             <FilterPill
               key={c.id}
-              label={c.name}
+              label={withEmoji(c)}
               active={categoryId === c.id}
               onClick={() => setCategoryId(c.id)}
             />

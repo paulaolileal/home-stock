@@ -12,7 +12,7 @@ import {
   useUpdateProduct,
 } from "@/hooks/queries";
 import { COMMON_UNITS } from "@/domain/units";
-import { resolveName } from "@/domain/lookup";
+import { resolveName, withEmoji } from "@/domain/lookup";
 import { formatLocation } from "@/lib/locationFormat";
 import { LocationSelectItems } from "@/presentation/components/LocationSelectItems";
 import {
@@ -171,7 +171,7 @@ export function ProductDetailPage() {
                 <SelectContent>
                   {categories.map((c) => (
                     <SelectItem key={c.id} value={c.id}>
-                      {c.name}
+                      {withEmoji(c)}
                     </SelectItem>
                   ))}
                 </SelectContent>

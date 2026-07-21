@@ -29,14 +29,16 @@ export function QuickAddDialog({
   function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!name.trim()) return;
-    const mutation = type === "category" ? createCategory : createLocation;
-    mutation.mutate(name.trim(), {
-      onSuccess: (item) => {
-        setName("");
-        onOpenChange(false);
-        onCreated?.(item);
-      },
-    });
+    const onSuccess = (item: { id: string; name: string }) => {
+      setName("");
+      onOpenChange(false);
+      onCreated?.(item);
+    };
+    if (type === "category") {
+      createCategory.mutate({ name: name.trim() }, { onSuccess });
+    } else {
+      createLocation.mutate(name.trim(), { onSuccess });
+    }
   }
 
   return (

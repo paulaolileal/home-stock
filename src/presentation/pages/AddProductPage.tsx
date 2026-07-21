@@ -7,6 +7,7 @@ import { LocationSelectItems } from "@/presentation/components/LocationSelectIte
 import { QuickAddDialog } from "@/presentation/components/QuickAddDialog";
 import { useBarcodeLookup } from "@/hooks/useBarcodeLookup";
 import { useCategories, useCreateProduct, useLocations } from "@/hooks/queries";
+import { withEmoji } from "@/domain/lookup";
 import { COMMON_UNITS } from "@/domain/units";
 import {
   Select,
@@ -159,7 +160,7 @@ export function AddProductPage() {
             <SelectField label="Categoria" value={categoryId} onChange={handleCategoryChange}>
               {categories.map((c) => (
                 <SelectItem key={c.id} value={c.id}>
-                  {c.name}
+                  {withEmoji(c)}
                 </SelectItem>
               ))}
               <SelectSeparator />

@@ -83,6 +83,10 @@ to `/404`.
   never touches product rows. Display code resolves the name via
   `resolveName()` (`src/domain/lookup.ts`), which falls back to `"—"` if the
   category/location was deleted.
+- Categories can have an optional `emoji` (stored in its own `emoji` column in
+  the `categories` sheet), shown as a prefix to the name via `withEmoji()`
+  (`src/domain/lookup.ts`, used by `resolveName()` too). Locations have no
+  equivalent field.
 - Locations can use a hierarchical name convention, `"Grupo > Local"` (e.g.
   `"Cozinha > Geladeira"`), rendered as a breadcrumb (`formatLocation`) and
   grouped in selects/settings (`groupLocations`) — see `src/lib/locationFormat.ts`.

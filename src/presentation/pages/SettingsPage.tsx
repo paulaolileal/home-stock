@@ -35,6 +35,7 @@ export function SettingsPage() {
   const { user, clearUser } = useAuthStore();
   const clearSpreadsheetId = useSpreadsheetStore((s) => s.clearSpreadsheetId);
   const [newCat, setNewCat] = useState("");
+  const [newCatEmoji, setNewCatEmoji] = useState("");
   const [newLoc, setNewLoc] = useState("");
 
   function handleSwitchSpreadsheet() {
@@ -119,13 +120,19 @@ export function SettingsPage() {
 
         <Section title="Categorias">
           <ChipEditor
-            items={categories.map((c) => ({ id: c.id, name: c.name }))}
+            items={categories}
             value={newCat}
             onChange={setNewCat}
+            emojiValue={newCatEmoji}
+            onEmojiValueChange={setNewCatEmoji}
             onAdd={() => {
               if (!newCat.trim()) return;
-              createCategory.mutate(newCat.trim());
+              createCategory.mutate({
+                name: newCat.trim(),
+                emoji: newCatEmoji.trim() || undefined,
+              });
               setNewCat("");
+              setNewCatEmoji("");
             }}
             onRename={(id, name) =>
               updateCategory.mutate(
@@ -137,6 +144,12 @@ export function SettingsPage() {
               deleteCategory.mutate(id, {
                 onError: () => toast.error("Não foi possível remover a categoria"),
               })
+            }
+            onEmojiChange={(id, emoji) =>
+              updateCategory.mutate(
+                { id, emoji },
+                { onError: () => toast.error("Não foi possível atualizar o emoji") },
+              )
             }
             placeholder="Nova categoria..."
           />
@@ -226,14 +239,20 @@ function ChipEditor({
   onAdd,
   onRename,
   onRemove,
+  onEmojiChange,
+  emojiValue,
+  onEmojiValueChange,
   placeholder,
 }: {
-  items: { id: string; name: string }[];
+  items: { id: string; name: string; emoji?: string }[];
   value: string;
   onChange: (s: string) => void;
   onAdd: () => void;
   onRename: (id: string, name: string) => void;
   onRemove: (id: string) => void;
+  onEmojiChange?: (id: string, emoji: string) => void;
+  emojiValue?: string;
+  onEmojiValueChange?: (s: string) => void;
   placeholder: string;
 }) {
   return (
@@ -244,12 +263,21 @@ function ChipEditor({
             key={it.id}
             id={it.id}
             name={it.name}
+            emoji={it.emoji}
             onRename={onRename}
             onRemove={onRemove}
+            onEmojiChange={onEmojiChange}
           />
         ))}
       </div>
-      <AddChipForm value={value} onChange={onChange} onAdd={onAdd} placeholder={placeholder} />
+      <AddChipForm
+        value={value}
+        onChange={onChange}
+        onAdd={onAdd}
+        placeholder={placeholder}
+        emojiValue={emojiValue}
+        onEmojiValueChange={onEmojiValueChange}
+      />
     </div>
   );
 }
@@ -313,11 +341,15 @@ function AddChipForm({
   onChange,
   onAdd,
   placeholder,
+  emojiValue,
+  onEmojiValueChange,
 }: {
   value: string;
   onChange: (s: string) => void;
   onAdd: () => void;
   placeholder: string;
+  emojiValue?: string;
+  onEmojiValueChange?: (s: string) => void;
 }) {
   return (
     <form
@@ -327,6 +359,16 @@ function AddChipForm({
       }}
       className="flex items-center gap-2 rounded-2xl bg-surface-2 px-3 py-2 ring-1 ring-border"
     >
+      {onEmojiValueChange && (
+        <input
+          value={emojiValue ?? ""}
+          onChange={(e) => onEmojiValueChange(e.target.value)}
+          placeholder="🔖"
+          maxLength={4}
+          aria-label="Emoji da categoria"
+          className="w-8 shrink-0 rounded-full bg-background text-center text-sm outline-none ring-1 ring-border"
+        />
+      )}
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -348,23 +390,35 @@ function EditableChip({
   id,
   name,
   displayName = name,
+  emoji,
   onRename,
   onRemove,
+  onEmojiChange,
 }: {
   id: string;
   name: string;
   displayName?: string;
+  emoji?: string;
   onRename: (id: string, name: string) => void;
   onRemove: (id: string) => void;
+  onEmojiChange?: (id: string, emoji: string) => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(name);
+  const [editingEmoji, setEditingEmoji] = useState(false);
+  const [emojiDraft, setEmojiDraft] = useState(emoji ?? "");
 
   function commit() {
     setEditing(false);
     const trimmed = draft.trim();
     if (trimmed && trimmed !== name) onRename(id, trimmed);
     else setDraft(name);
+  }
+
+  function commitEmoji() {
+    setEditingEmoji(false);
+    const trimmed = emojiDraft.trim();
+    if (trimmed !== (emoji ?? "")) onEmojiChange?.(id, trimmed);
   }
 
   if (editing) {
@@ -388,6 +442,36 @@ function EditableChip({
 
   return (
     <span className="inline-flex items-center gap-1 rounded-full bg-surface-2 px-3 py-1 text-xs font-semibold ring-1 ring-border">
+      {onEmojiChange &&
+        (editingEmoji ? (
+          <input
+            autoFocus
+            value={emojiDraft}
+            onChange={(e) => setEmojiDraft(e.target.value)}
+            onBlur={commitEmoji}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") commitEmoji();
+              if (e.key === "Escape") {
+                setEmojiDraft(emoji ?? "");
+                setEditingEmoji(false);
+              }
+            }}
+            maxLength={4}
+            className="w-8 rounded-full bg-background text-center text-sm outline-none ring-1 ring-ring"
+          />
+        ) : (
+          <button
+            type="button"
+            onClick={() => {
+              setEmojiDraft(emoji ?? "");
+              setEditingEmoji(true);
+            }}
+            aria-label={emoji ? `Alterar emoji de ${name}` : `Adicionar emoji para ${name}`}
+            className="grid size-4 place-items-center text-sm leading-none opacity-80"
+          >
+            {emoji || "🔖"}
+          </button>
+        ))}
       <button
         type="button"
         onClick={() => {

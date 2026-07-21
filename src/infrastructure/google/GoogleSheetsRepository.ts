@@ -210,29 +210,36 @@ export class GoogleSheetsRepository implements InventoryRepository {
       .map((r) => ({ id: r.category_id, name: r.name, emoji: r.emoji || undefined }));
   }
 
-  async createCategory(name: string): Promise<Category> {
+  async createCategory(name: string, emoji?: string): Promise<Category> {
     const existing = await this.getCategories();
     const found = existing.find((c) => c.name.toLowerCase() === name.toLowerCase());
     if (found) return found;
 
-    const category: Category = { id: categoryId(name), name };
+    const category: Category = { id: categoryId(name), name, emoji };
     await this.request(`/values/${SHEETS.categories}:append?valueInputOption=USER_ENTERED`, {
       method: "POST",
-      body: JSON.stringify({ values: [[category.id, category.name, ""]] }),
+      body: JSON.stringify({ values: [[category.id, category.name, category.emoji ?? ""]] }),
     });
     return category;
   }
 
-  async updateCategory(id: string, name: string): Promise<Category> {
+  async updateCategory(id: string, patch: { name?: string; emoji?: string }): Promise<Category> {
     const existing = await this.getCategories();
     const current = existing.find((c) => c.id === id);
     if (!current) throw new Error(`Categoria ${id} não encontrada`);
-    const duplicate = existing.find(
-      (c) => c.id !== id && c.name.toLowerCase() === name.toLowerCase(),
-    );
-    if (duplicate) throw new Error(`Já existe uma categoria chamada "${name}"`);
+    const name = patch.name ?? current.name;
+    if (patch.name) {
+      const duplicate = existing.find(
+        (c) => c.id !== id && c.name.toLowerCase() === name.toLowerCase(),
+      );
+      if (duplicate) throw new Error(`Já existe uma categoria chamada "${name}"`);
+    }
 
-    const updated: Category = { ...current, name };
+    const updated: Category = {
+      ...current,
+      name,
+      emoji: patch.emoji !== undefined ? patch.emoji : current.emoji,
+    };
     const rowIdx = await this.findRowIndex(SHEETS.categories, "category_id", id);
     await this.request(
       `/values/${SHEETS.categories}!A${rowIdx}:C${rowIdx}?valueInputOption=USER_ENTERED`,
