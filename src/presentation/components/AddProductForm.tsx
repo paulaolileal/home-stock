@@ -6,6 +6,7 @@ import { LocationSelectItems } from "@/presentation/components/LocationSelectIte
 import { QuickAddDialog } from "@/presentation/components/QuickAddDialog";
 import { useBarcodeLookup } from "@/hooks/useBarcodeLookup";
 import { useCategories, useCreateProduct, useLocations } from "@/hooks/queries";
+import { useLastProductDefaultsStore } from "@/store/lastProductDefaultsStore";
 import { withEmoji } from "@/domain/lookup";
 import { COMMON_UNITS } from "@/domain/units";
 import {
@@ -25,11 +26,16 @@ export function AddProductForm({ onSuccess }: { onSuccess: () => void }) {
   const { data: locations = [] } = useLocations();
   const createProduct = useCreateProduct();
   const lookupBarcode = useBarcodeLookup();
+  const {
+    categoryId: lastCategoryId,
+    locationId: lastLocationId,
+    setLastProductDefaults,
+  } = useLastProductDefaultsStore();
 
   const [scannerOpen, setScannerOpen] = useState(false);
   const [name, setName] = useState("");
-  const [categoryId, setCategoryId] = useState(categories[0]?.id ?? "");
-  const [locationId, setLocationId] = useState(locations[0]?.id ?? "");
+  const [categoryId, setCategoryId] = useState(lastCategoryId ?? categories[0]?.id ?? "");
+  const [locationId, setLocationId] = useState(lastLocationId ?? locations[0]?.id ?? "");
   const [quantity, setQuantity] = useState(1);
   const [min, setMin] = useState(1);
   const [ideal, setIdeal] = useState(3);
@@ -102,6 +108,7 @@ export function AddProductForm({ onSuccess }: { onSuccess: () => void }) {
       },
       {
         onSuccess: () => {
+          setLastProductDefaults(categoryId, locationId);
           toast.success("Produto adicionado");
           onSuccess();
         },
