@@ -405,83 +405,73 @@ function EditableChip({
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(name);
-  const [editingEmoji, setEditingEmoji] = useState(false);
   const [emojiDraft, setEmojiDraft] = useState(emoji ?? "");
+
+  function startEditing() {
+    setDraft(name);
+    setEmojiDraft(emoji ?? "");
+    setEditing(true);
+  }
 
   function commit() {
     setEditing(false);
-    const trimmed = draft.trim();
-    if (trimmed && trimmed !== name) onRename(id, trimmed);
-    else setDraft(name);
+    const trimmedName = draft.trim();
+    if (trimmedName && trimmedName !== name) onRename(id, trimmedName);
+    const trimmedEmoji = emojiDraft.trim();
+    if (onEmojiChange && trimmedEmoji !== (emoji ?? "")) onEmojiChange(id, trimmedEmoji);
   }
 
-  function commitEmoji() {
-    setEditingEmoji(false);
-    const trimmed = emojiDraft.trim();
-    if (trimmed !== (emoji ?? "")) onEmojiChange?.(id, trimmed);
+  function cancel() {
+    setDraft(name);
+    setEmojiDraft(emoji ?? "");
+    setEditing(false);
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter") e.currentTarget.blur();
+    if (e.key === "Escape") cancel();
   }
 
   if (editing) {
     return (
-      <input
-        autoFocus
-        value={draft}
-        onChange={(e) => setDraft(e.target.value)}
-        onBlur={commit}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") commit();
-          if (e.key === "Escape") {
-            setDraft(name);
-            setEditing(false);
-          }
+      <span
+        className="inline-flex items-center gap-1 rounded-full bg-surface-2 px-3 py-1 ring-1 ring-ring"
+        onBlur={(e) => {
+          if (!e.currentTarget.contains(e.relatedTarget as Node)) commit();
         }}
-        className="w-36 rounded-full bg-surface-2 px-3 py-1 text-xs font-semibold ring-1 ring-ring outline-none"
-      />
+      >
+        {onEmojiChange && (
+          <input
+            autoFocus
+            value={emojiDraft}
+            onChange={(e) => setEmojiDraft(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="🔖"
+            maxLength={4}
+            aria-label={`Emoji de ${name}`}
+            className="w-7 shrink-0 bg-transparent text-center text-sm outline-none"
+          />
+        )}
+        <input
+          autoFocus={!onEmojiChange}
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={handleKeyDown}
+          className="w-28 bg-transparent text-xs font-semibold outline-none"
+        />
+      </span>
     );
   }
 
   return (
     <span className="inline-flex items-center gap-1 rounded-full bg-surface-2 px-3 py-1 text-xs font-semibold ring-1 ring-border">
-      {onEmojiChange &&
-        (editingEmoji ? (
-          <input
-            autoFocus
-            value={emojiDraft}
-            onChange={(e) => setEmojiDraft(e.target.value)}
-            onBlur={commitEmoji}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") commitEmoji();
-              if (e.key === "Escape") {
-                setEmojiDraft(emoji ?? "");
-                setEditingEmoji(false);
-              }
-            }}
-            maxLength={4}
-            className="w-8 rounded-full bg-background text-center text-sm outline-none ring-1 ring-ring"
-          />
-        ) : (
-          <button
-            type="button"
-            onClick={() => {
-              setEmojiDraft(emoji ?? "");
-              setEditingEmoji(true);
-            }}
-            aria-label={emoji ? `Alterar emoji de ${name}` : `Adicionar emoji para ${name}`}
-            className="grid size-4 place-items-center text-sm leading-none opacity-80"
-          >
-            {emoji || "🔖"}
-          </button>
-        ))}
       <button
         type="button"
-        onClick={() => {
-          setDraft(name);
-          setEditing(true);
-        }}
+        onClick={startEditing}
         aria-label={`Editar ${displayName}`}
         className="max-w-[10rem] truncate text-left"
       >
-        {displayName}
+        {emoji ? `${emoji} ${displayName}` : displayName}
       </button>
       <button
         onClick={() => onRemove(id)}
