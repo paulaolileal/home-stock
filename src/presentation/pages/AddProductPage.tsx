@@ -179,7 +179,7 @@ export function AddProductPage() {
                 <img
                   src={image}
                   alt=""
-                  className="size-9 shrink-0 rounded-lg object-cover ring-1 ring-border"
+                  className="size-9 shrink-0 rounded-[10px] bg-surface-2 object-contain p-1 ring-1 ring-border"
                 />
               ) : (
                 <ImageOff className="size-5 shrink-0 text-muted-foreground" strokeWidth={2} />

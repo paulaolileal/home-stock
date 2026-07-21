@@ -105,7 +105,7 @@ export function ShoppingRow({
           <img
             src={product.image}
             alt=""
-            className="size-9 shrink-0 rounded-lg object-cover ring-1 ring-border"
+            className="size-9 shrink-0 rounded-[10px] bg-surface-2 object-contain p-1 ring-1 ring-border"
           />
         )}
 
