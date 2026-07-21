@@ -181,10 +181,7 @@ export function ProductDetailPage() {
 
         {editing && (
           <div className="space-y-3 rounded-3xl bg-card p-5 ring-1 ring-border">
-            <label className="block rounded-xl bg-surface-2 px-4 py-3 ring-1 ring-border">
-              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Nome
-              </span>
+            <Row label="Nome">
               <input
                 defaultValue={product.name}
                 onBlur={(e) => {
@@ -195,9 +192,9 @@ export function ProductDetailPage() {
                     e.target.value = product.name;
                   }
                 }}
-                className="mt-1 w-full bg-transparent text-sm font-semibold outline-none"
+                className="min-w-0 flex-1 bg-transparent text-right text-sm font-semibold outline-none"
               />
-            </label>
+            </Row>
             <Row label="Categoria">
               <Select
                 value={product.categoryId}
