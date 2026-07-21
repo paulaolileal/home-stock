@@ -106,7 +106,12 @@ to `/404`.
   sheet columns are append-only: new fields must be added at the **end** of the
   `products` headers array (both in `SheetsInitializer.ts` and
   `GoogleSheetsRepository.ts`) so existing users' spreadsheets don't get their
-  columns shifted.
+  columns shifted. `SheetsInitializer.ensureSheets()` only runs once, during
+  `/setup` — accounts set up before a column was added never see it applied. To
+  cover that, `GoogleSheetsRepository.ensureProductHeaders()` self-heals the
+  `products` header row (patches it in place if out of date) on first use per
+  repository instance; any new product field needs no extra wiring for this,
+  but the append-only rule above still applies.
 
 ### Adding mutations
 

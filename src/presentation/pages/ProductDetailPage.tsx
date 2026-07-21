@@ -11,6 +11,7 @@ import {
   useToggleFavorite,
   useUpdateProduct,
 } from "@/hooks/queries";
+import { useToggleWanted } from "@/hooks/useToggleWanted";
 import { COMMON_UNITS } from "@/domain/units";
 import { resolveName, withEmoji } from "@/domain/lookup";
 import { formatLocation } from "@/lib/locationFormat";
@@ -32,6 +33,7 @@ export function ProductDetailPage() {
   const { data: locations = [] } = useLocations();
   const incrementProduct = useIncrementProduct();
   const toggleFavorite = useToggleFavorite();
+  const toggleWanted = useToggleWanted();
   const updateProduct = useUpdateProduct();
   const deleteProduct = useDeleteProduct();
   const product = useMemo(() => products.find((p) => p.id === id), [products, id]);
@@ -65,9 +67,7 @@ export function ProductDetailPage() {
         </button>
         <div className="flex gap-2">
           <button
-            onClick={() =>
-              updateProduct.mutate({ id: product.id, patch: { wanted: !product.wanted } })
-            }
+            onClick={() => toggleWanted(product)}
             aria-label={
               product.wanted ? "Remover da lista de compras" : "Adicionar à lista de compras"
             }

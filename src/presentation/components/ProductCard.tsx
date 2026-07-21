@@ -1,12 +1,7 @@
 import { Link } from "react-router-dom";
 import { Minus, Plus, ShoppingCart, Star } from "lucide-react";
-import {
-  needsShopping,
-  useCategories,
-  useLocations,
-  useToggleFavorite,
-  useUpdateProduct,
-} from "@/hooks/queries";
+import { needsShopping, useCategories, useLocations, useToggleFavorite } from "@/hooks/queries";
+import { useToggleWanted } from "@/hooks/useToggleWanted";
 import { resolveName } from "@/domain/lookup";
 import { formatLocation } from "@/lib/locationFormat";
 import type { Product } from "@/domain/types";
@@ -20,7 +15,7 @@ export function ProductCard({
 }) {
   const low = needsShopping(product);
   const toggleFavorite = useToggleFavorite();
-  const updateProduct = useUpdateProduct();
+  const toggleWanted = useToggleWanted();
   const { data: categories = [] } = useCategories();
   const { data: locations = [] } = useLocations();
 
@@ -59,7 +54,7 @@ export function ProductCard({
             }
             onClick={(e) => {
               e.preventDefault();
-              updateProduct.mutate({ id: product.id, patch: { wanted: !product.wanted } });
+              toggleWanted(product);
             }}
             className={`grid size-8 place-items-center rounded-full transition-colors ${
               product.wanted ? "text-accent" : "text-muted-foreground hover:text-foreground"

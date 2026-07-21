@@ -47,7 +47,34 @@ export interface GoogleSheetsConfig {
 }
 
 export class GoogleSheetsRepository implements InventoryRepository {
+  private productHeadersReady: Promise<void> | null = null;
+
   constructor(private readonly cfg: GoogleSheetsConfig) {}
+
+  /**
+   * Accounts set up before a new product column was introduced have a header
+   * row that is missing it (SheetsInitializer.ensureSheets only runs once,
+   * during initial setup) — reads would silently drop that column's data.
+   * Patches the header row in place the first time it's out of date; cached
+   * per instance so it only checks once per session.
+   */
+  private async ensureProductHeaders(): Promise<void> {
+    if (!this.productHeadersReady) {
+      this.productHeadersReady = (async () => {
+        const [current] = await this.getValues(`${SHEETS.products}!1:1`);
+        const trimmed = (current ?? []).map((h) => h.trim());
+        const upToDate =
+          trimmed.length >= PRODUCT_HEADERS.length &&
+          PRODUCT_HEADERS.every((h, i) => trimmed[i] === h);
+        if (upToDate) return;
+        await this.request(
+          `/values/${SHEETS.products}!A1:${columnLetter(PRODUCT_HEADERS.length)}1?valueInputOption=USER_ENTERED`,
+          { method: "PUT", body: JSON.stringify({ values: [PRODUCT_HEADERS] }) },
+        );
+      })();
+    }
+    return this.productHeadersReady;
+  }
 
   private async request<T>(path: string, init?: RequestInit): Promise<T> {
     const token = this.cfg.getAccessToken();
@@ -165,6 +192,7 @@ export class GoogleSheetsRepository implements InventoryRepository {
   }
 
   async getProducts(): Promise<Product[]> {
+    await this.ensureProductHeaders();
     const rows = await this.getValues(SHEETS.products);
     return this.rowsToObjects(rows)
       .filter((r) => !!r.product_id)
@@ -172,6 +200,7 @@ export class GoogleSheetsRepository implements InventoryRepository {
   }
 
   async createProduct(input: Omit<Product, "id" | "updatedAt">): Promise<Product> {
+    await this.ensureProductHeaders();
     const product: Product = { ...input, id: productId(), updatedAt: new Date().toISOString() };
     await this.request(`/values/${SHEETS.products}:append?valueInputOption=USER_ENTERED`, {
       method: "POST",
