@@ -13,10 +13,12 @@ export function QuickAddDialog({
   type,
   open,
   onOpenChange,
+  onCreated,
 }: {
   type: QuickAddType;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onCreated?: (item: { id: string; name: string }) => void;
 }) {
   const [name, setName] = useState("");
   const createCategory = useCreateCategory();
@@ -29,9 +31,10 @@ export function QuickAddDialog({
     if (!name.trim()) return;
     const mutation = type === "category" ? createCategory : createLocation;
     mutation.mutate(name.trim(), {
-      onSuccess: () => {
+      onSuccess: (item) => {
         setName("");
         onOpenChange(false);
+        onCreated?.(item);
       },
     });
   }

@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ScanLine, ArrowLeft, ImageOff } from "lucide-react";
+import { ScanLine, ArrowLeft, ImageOff, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { BarcodeScannerModal } from "@/presentation/components/BarcodeScannerModal";
 import { LocationSelectItems } from "@/presentation/components/LocationSelectItems";
+import { QuickAddDialog } from "@/presentation/components/QuickAddDialog";
 import { useBarcodeLookup } from "@/hooks/useBarcodeLookup";
 import { useCategories, useCreateProduct, useLocations } from "@/hooks/queries";
 import { COMMON_UNITS } from "@/domain/units";
@@ -11,10 +12,13 @@ import {
   Select,
   SelectContent,
   SelectItem,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+
+const NEW_ITEM_VALUE = "__new__";
 
 export function AddProductPage() {
   const navigate = useNavigate();
@@ -34,6 +38,23 @@ export function AddProductPage() {
   const [notes, setNotes] = useState("");
   const [image, setImage] = useState("");
   const [barcode, setBarcode] = useState<string | undefined>();
+  const [quickAdd, setQuickAdd] = useState<"category" | "location" | null>(null);
+
+  function handleCategoryChange(value: string) {
+    if (value === NEW_ITEM_VALUE) {
+      setQuickAdd("category");
+      return;
+    }
+    setCategoryId(value);
+  }
+
+  function handleLocationChange(value: string) {
+    if (value === NEW_ITEM_VALUE) {
+      setQuickAdd("location");
+      return;
+    }
+    setLocationId(value);
+  }
 
   async function handleBarcodeDetected(code: string) {
     setScannerOpen(false);
@@ -135,15 +156,29 @@ export function AddProductPage() {
           </Field>
 
           <div className="grid grid-cols-2 gap-3">
-            <SelectField label="Categoria" value={categoryId} onChange={setCategoryId}>
+            <SelectField label="Categoria" value={categoryId} onChange={handleCategoryChange}>
               {categories.map((c) => (
                 <SelectItem key={c.id} value={c.id}>
                   {c.name}
                 </SelectItem>
               ))}
+              <SelectSeparator />
+              <SelectItem value={NEW_ITEM_VALUE} className="font-semibold text-primary">
+                <span className="inline-flex items-center gap-1">
+                  <Plus className="size-3.5" strokeWidth={2.5} />
+                  Nova categoria
+                </span>
+              </SelectItem>
             </SelectField>
-            <SelectField label="Local" value={locationId} onChange={setLocationId}>
+            <SelectField label="Local" value={locationId} onChange={handleLocationChange}>
               <LocationSelectItems locations={locations} />
+              <SelectSeparator />
+              <SelectItem value={NEW_ITEM_VALUE} className="font-semibold text-primary">
+                <span className="inline-flex items-center gap-1">
+                  <Plus className="size-3.5" strokeWidth={2.5} />
+                  Novo local
+                </span>
+              </SelectItem>
             </SelectField>
           </div>
 
@@ -208,6 +243,18 @@ export function AddProductPage() {
         <BarcodeScannerModal
           onDetected={handleBarcodeDetected}
           onClose={() => setScannerOpen(false)}
+        />
+      )}
+
+      {quickAdd && (
+        <QuickAddDialog
+          type={quickAdd}
+          open={!!quickAdd}
+          onOpenChange={(open) => !open && setQuickAdd(null)}
+          onCreated={(item) => {
+            if (quickAdd === "category") setCategoryId(item.id);
+            else setLocationId(item.id);
+          }}
         />
       )}
     </>
