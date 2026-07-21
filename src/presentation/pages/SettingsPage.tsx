@@ -189,6 +189,21 @@ export function SettingsPage() {
               Versão 1.0.0 — seus dados ficam na sua planilha do Google Sheets.
             </p>
           </div>
+
+          <a
+            href="https://lealtek.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 flex items-center justify-between rounded-2xl bg-surface-2 p-4 ring-1 ring-border transition-opacity hover:opacity-80"
+          >
+            <div>
+              <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
+                Desenvolvido por
+              </p>
+              <img src="/lealtek-full.png" alt="LealTEK" className="mt-1 h-8 object-contain" />
+            </div>
+            <span className="text-xs font-semibold text-primary">lealtek.com</span>
+          </a>
         </Section>
       </div>
     </>
