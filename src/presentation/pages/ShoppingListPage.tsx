@@ -41,38 +41,40 @@ export function ShoppingListPage() {
           <Empty />
         ) : (
           <>
-            <div className="space-y-6 lg:grid lg:grid-cols-2 lg:items-start lg:gap-6 lg:space-y-0">
-              {remaining.length > 0 && (
-                <section>
-                  <h2 className="mb-3 text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                    Para comprar
-                  </h2>
-                  <div className="space-y-2 animate-slide-up">
-                    {remaining.map((p) => (
-                      <ShoppingRow key={p.id} product={p} />
-                    ))}
-                  </div>
-                </section>
-              )}
+            {remaining.length > 0 && (
+              <section>
+                <h2 className="mb-3 text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                  Para comprar
+                </h2>
+                <div className="space-y-2 animate-slide-up lg:space-y-3">
+                  {remaining.map((p) => (
+                    <ShoppingRow key={p.id} product={p} />
+                  ))}
+                </div>
+              </section>
+            )}
 
-              {done && <DoneCard />}
+            {done && (
+              <div className="lg:mx-auto lg:max-w-md">
+                <DoneCard />
+              </div>
+            )}
 
-              {inCart.length > 0 && (
-                <section>
-                  <h2 className="mb-3 text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                    No carrinho ({inCart.length})
-                  </h2>
-                  <div className="space-y-2">
-                    {inCart.map((p) => (
-                      <ShoppingRow key={p.id} product={p} />
-                    ))}
-                  </div>
-                </section>
-              )}
-            </div>
+            {inCart.length > 0 && (
+              <section>
+                <h2 className="mb-3 text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                  No carrinho ({inCart.length})
+                </h2>
+                <div className="space-y-2 lg:space-y-3">
+                  {inCart.map((p) => (
+                    <ShoppingRow key={p.id} product={p} />
+                  ))}
+                </div>
+              </section>
+            )}
 
             <p className="pt-2 text-center text-[11px] text-muted-foreground">
-              Dica: arraste um item para a direita para adicionar ao carrinho.
+              Dica: arraste um item para o lado para adicionar ao carrinho.
             </p>
           </>
         )}

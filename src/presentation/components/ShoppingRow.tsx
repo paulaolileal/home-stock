@@ -92,7 +92,7 @@ export function ShoppingRow({ product }: { product: Product }) {
       {/* Foreground row */}
       <div
         style={{ transform: `translateX(${dragX}px)` }}
-        className={`relative flex h-16 items-center gap-3 rounded-2xl px-4 ring-1 ring-border transition-transform duration-200 ${
+        className={`relative flex h-16 items-center gap-3 rounded-2xl px-4 ring-1 ring-border transition-transform duration-200 lg:h-20 lg:gap-4 lg:px-5 ${
           inCart ? "bg-surface-2" : "bg-card shadow-[var(--shadow-soft)]"
         }`}
       >
@@ -102,7 +102,7 @@ export function ShoppingRow({ product }: { product: Product }) {
           onClick={() =>
             inCart ? setInCart.mutate({ id: product.id, inCart: false }) : confirmPurchase()
           }
-          className={`grid size-7 shrink-0 place-items-center rounded-lg border-2 transition-all ${
+          className={`grid size-7 shrink-0 place-items-center rounded-lg border-2 transition-all lg:size-8 ${
             inCart
               ? "border-accent bg-accent text-accent-foreground"
               : "border-border bg-transparent"
@@ -115,22 +115,24 @@ export function ShoppingRow({ product }: { product: Product }) {
           <img
             src={product.image}
             alt=""
-            className="size-9 shrink-0 rounded-[10px] bg-surface-2 object-contain p-1 ring-1 ring-border"
+            className="size-9 shrink-0 rounded-[10px] bg-surface-2 object-contain p-1 ring-1 ring-border lg:size-11"
           />
         )}
 
         <div className="min-w-0 flex-1">
           <p
-            className={`truncate text-sm font-semibold ${
+            className={`truncate text-sm font-semibold lg:text-base ${
               inCart ? "text-muted-foreground line-through" : "text-foreground"
             }`}
           >
             {product.name}
           </p>
           {product.notes && (
-            <p className="truncate text-[10px] italic text-muted-foreground">({product.notes})</p>
+            <p className="truncate text-[10px] italic text-muted-foreground lg:text-xs">
+              ({product.notes})
+            </p>
           )}
-          <p className="truncate text-[10px] text-muted-foreground">
+          <p className="truncate text-[10px] text-muted-foreground lg:text-xs">
             {formatLocation(resolveName(locations, product.locationId))} • tem {product.quantity}{" "}
             {product.unit}
             {isLow && " • em baixa"}
@@ -143,16 +145,18 @@ export function ShoppingRow({ product }: { product: Product }) {
             aria-label="Diminuir quantidade a comprar"
             onClick={() => setTarget(product.id, Math.max(0, target - 1))}
             disabled={target <= 0}
-            className="grid size-8 place-items-center rounded-md active:scale-90 disabled:opacity-40"
+            className="grid size-8 place-items-center rounded-md active:scale-90 disabled:opacity-40 lg:size-9"
           >
             <Minus className="size-3.5" strokeWidth={2.5} />
           </button>
-          <span className="w-8 text-center font-mono text-xs font-bold tabular-nums">{target}</span>
+          <span className="w-8 text-center font-mono text-xs font-bold tabular-nums lg:w-9 lg:text-sm">
+            {target}
+          </span>
           <button
             type="button"
             aria-label="Aumentar quantidade a comprar"
             onClick={() => setTarget(product.id, target + 1)}
-            className="grid size-8 place-items-center rounded-md bg-foreground text-background active:scale-90"
+            className="grid size-8 place-items-center rounded-md bg-foreground text-background active:scale-90 lg:size-9"
           >
             <Plus className="size-3.5" strokeWidth={2.5} />
           </button>
