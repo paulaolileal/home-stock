@@ -41,33 +41,35 @@ export function ShoppingListPage() {
           <Empty />
         ) : (
           <>
-            {remaining.length > 0 && (
-              <section>
-                <h2 className="mb-3 text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                  Para comprar
-                </h2>
-                <div className="space-y-2 animate-slide-up">
-                  {remaining.map((p) => (
-                    <ShoppingRow key={p.id} product={p} />
-                  ))}
-                </div>
-              </section>
-            )}
+            <div className="space-y-6 lg:grid lg:grid-cols-2 lg:items-start lg:gap-6 lg:space-y-0">
+              {remaining.length > 0 && (
+                <section>
+                  <h2 className="mb-3 text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                    Para comprar
+                  </h2>
+                  <div className="space-y-2 animate-slide-up">
+                    {remaining.map((p) => (
+                      <ShoppingRow key={p.id} product={p} />
+                    ))}
+                  </div>
+                </section>
+              )}
 
-            {done && <DoneCard />}
+              {done && <DoneCard />}
 
-            {inCart.length > 0 && (
-              <section>
-                <h2 className="mb-3 text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                  No carrinho ({inCart.length})
-                </h2>
-                <div className="space-y-2">
-                  {inCart.map((p) => (
-                    <ShoppingRow key={p.id} product={p} />
-                  ))}
-                </div>
-              </section>
-            )}
+              {inCart.length > 0 && (
+                <section>
+                  <h2 className="mb-3 text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                    No carrinho ({inCart.length})
+                  </h2>
+                  <div className="space-y-2">
+                    {inCart.map((p) => (
+                      <ShoppingRow key={p.id} product={p} />
+                    ))}
+                  </div>
+                </section>
+              )}
+            </div>
 
             <p className="pt-2 text-center text-[11px] text-muted-foreground">
               Dica: arraste um item para a direita para adicionar ao carrinho.

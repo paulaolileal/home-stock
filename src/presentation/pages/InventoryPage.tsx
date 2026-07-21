@@ -76,7 +76,7 @@ export function InventoryPage() {
         </div>
 
         {/* Filters */}
-        <div className="no-scrollbar flex gap-2 overflow-x-auto animate-slide-up [animation-delay:120ms]">
+        <div className="no-scrollbar flex gap-2 overflow-x-auto animate-slide-up [animation-delay:120ms] lg:flex-wrap lg:overflow-visible">
           <button
             onClick={() => setOnlyFav((v) => !v)}
             className={`flex shrink-0 items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-semibold ring-1 transition-colors ${
@@ -109,7 +109,7 @@ export function InventoryPage() {
         ) : filtered.length === 0 ? (
           <EmptyState />
         ) : (
-          <div className="grid gap-3 animate-slide-up [animation-delay:160ms]">
+          <div className="grid gap-3 lg:grid-cols-2 lg:gap-4 xl:grid-cols-3 animate-slide-up [animation-delay:160ms]">
             {filtered.map((p) => (
               <ProductCard key={p.id} product={p} onIncrement={incrementProduct} />
             ))}

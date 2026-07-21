@@ -110,36 +110,38 @@ export function ProductDetailPage() {
       </header>
 
       <div className="px-6 pb-4 space-y-4 animate-slide-up">
-        {product.image && (
-          <div className="flex justify-center">
-            <img
-              src={product.image}
-              alt=""
-              className="h-48 w-48 rounded-3xl bg-surface-2 object-contain p-4 ring-1 ring-border"
-            />
+        <div className="lg:flex lg:items-start lg:gap-8">
+          {product.image && (
+            <div className="flex justify-center lg:shrink-0">
+              <img
+                src={product.image}
+                alt=""
+                className="h-48 w-48 rounded-3xl bg-surface-2 object-contain p-4 ring-1 ring-border"
+              />
+            </div>
+          )}
+          <div className="min-w-0 lg:flex-1">
+            {low && (
+              <span className="inline-block rounded-full bg-alert/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-alert">
+                Baixo estoque
+              </span>
+            )}
+            {!low && product.wanted && (
+              <span className="inline-block rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-accent">
+                Na lista de compras
+              </span>
+            )}
+            <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-balance">
+              {product.name}
+            </h1>
+            {product.notes && (
+              <p className="mt-1 text-sm italic text-muted-foreground">({product.notes})</p>
+            )}
+            <p className="mt-1 text-sm text-muted-foreground">
+              {formatLocation(resolveName(locations, product.locationId))} •{" "}
+              {resolveName(categories, product.categoryId)}
+            </p>
           </div>
-        )}
-        <div className="min-w-0">
-          {low && (
-            <span className="inline-block rounded-full bg-alert/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-alert">
-              Baixo estoque
-            </span>
-          )}
-          {!low && product.wanted && (
-            <span className="inline-block rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-accent">
-              Na lista de compras
-            </span>
-          )}
-          <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-balance">
-            {product.name}
-          </h1>
-          {product.notes && (
-            <p className="mt-1 text-sm italic text-muted-foreground">({product.notes})</p>
-          )}
-          <p className="mt-1 text-sm text-muted-foreground">
-            {formatLocation(resolveName(locations, product.locationId))} •{" "}
-            {resolveName(categories, product.categoryId)}
-          </p>
         </div>
 
         {/* Big stepper */}

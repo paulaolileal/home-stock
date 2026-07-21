@@ -19,6 +19,7 @@ import { clearAccessToken } from "@/services/googleAuth";
 import { useAuthStore } from "@/store/authStore";
 import { useSpreadsheetStore } from "@/store/spreadsheetStore";
 import { groupLocations, locationLeaf, shouldShowGroupLabel } from "@/lib/locationFormat";
+import { cn } from "@/lib/utils";
 
 export function SettingsPage() {
   const navigate = useNavigate();
@@ -61,7 +62,7 @@ export function SettingsPage() {
         <p className="mt-1 text-sm text-muted-foreground">Personalize o app.</p>
       </header>
 
-      <div className="space-y-4 px-6 pb-4">
+      <div className="space-y-4 px-6 pb-4 lg:grid lg:grid-cols-2 lg:items-start lg:gap-4 lg:space-y-0">
         <Section title="Tema">
           <div className="grid grid-cols-3 gap-2">
             <ThemeOption
@@ -182,7 +183,7 @@ export function SettingsPage() {
           </p>
         </Section>
 
-        <Section title="Sobre">
+        <Section title="Sobre" className="lg:col-span-2">
           <div className="rounded-2xl bg-surface-2 p-4 text-xs text-muted-foreground ring-1 ring-border">
             <p className="text-sm font-semibold text-foreground">Home Inventory</p>
             <p className="mt-1">
@@ -210,9 +211,17 @@ export function SettingsPage() {
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({
+  title,
+  children,
+  className,
+}: {
+  title: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
-    <section className="animate-slide-up">
+    <section className={cn("animate-slide-up", className)}>
       <h2 className="mb-2 px-1 text-xs font-bold uppercase tracking-widest text-muted-foreground">
         {title}
       </h2>

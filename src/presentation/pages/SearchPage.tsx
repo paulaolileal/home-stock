@@ -48,7 +48,7 @@ export function SearchPage() {
           </div>
         )}
 
-        <div className="grid gap-3">
+        <div className="grid gap-3 lg:grid-cols-2 lg:gap-4 xl:grid-cols-3">
           {results.map((p) => (
             <ProductCard key={p.id} product={p} onIncrement={incrementProduct} />
           ))}

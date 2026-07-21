@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Plus, Package, Tag, MapPin } from "lucide-react";
 import {
   DropdownMenu,
@@ -8,34 +8,41 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { QuickAddDialog } from "@/presentation/components/QuickAddDialog";
+import { AddProductSheet } from "@/presentation/components/AddProductSheet";
 import { NAV_ITEMS } from "@/presentation/navigation/navItems";
 
-export function BottomNav() {
+// z-index scale (desktop): 10 sidebar (sticky) < 40 BottomNav (mobile-only, see
+// BottomNav.tsx) < 50 Dialog/Sheet/DropdownMenu (Radix Portal, global). Sidebar and
+// BottomNav never coexist since their breakpoints are mutually exclusive.
+export function DesktopSidebar() {
   const { pathname } = useLocation();
-  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [quickAdd, setQuickAdd] = useState<"category" | "location" | null>(null);
+  const [addProductOpen, setAddProductOpen] = useState(false);
 
   return (
     <>
-      <nav
+      <aside
         aria-label="Navegação"
-        className="fixed bottom-4 left-1/2 z-40 flex h-16 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 items-center justify-between rounded-full border border-border/60 bg-card/85 px-2 shadow-[var(--shadow-pop)] backdrop-blur-xl lg:hidden"
+        className="hidden lg:sticky lg:top-0 lg:z-10 lg:flex lg:h-screen lg:w-64 lg:shrink-0 lg:flex-col lg:gap-1 lg:border-r lg:border-border/60 lg:bg-card/60 lg:p-4"
       >
-        {NAV_ITEMS.slice(0, 2).map((it) => {
+        <div className="mb-4 px-2 text-lg font-extrabold tracking-tight">Home Stock</div>
+
+        {NAV_ITEMS.map((it) => {
           const active = it.match(pathname);
           const Icon = it.icon;
           return (
             <Link
               key={it.to}
               to={it.to}
-              aria-label={it.label}
-              className={`flex flex-1 flex-col items-center justify-center gap-0.5 rounded-full px-3 py-2 transition-colors ${
-                active ? "text-foreground" : "text-muted-foreground"
+              className={`flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-semibold transition-colors ${
+                active
+                  ? "bg-foreground text-background"
+                  : "text-muted-foreground hover:bg-surface-2 hover:text-foreground"
               }`}
             >
               <Icon className="size-5" strokeWidth={active ? 2.4 : 2} />
-              <span className="text-[10px] font-semibold tracking-wide">{it.label}</span>
+              {it.label}
             </Link>
           );
         })}
@@ -44,23 +51,16 @@ export function BottomNav() {
           <DropdownMenuTrigger asChild>
             <button
               aria-label="Adicionar"
-              className="flex size-12 shrink-0 items-center justify-center rounded-full bg-foreground text-background shadow-[var(--shadow-pop)] transition-transform active:scale-90"
+              className="mt-2 flex items-center justify-center gap-2 rounded-2xl bg-foreground py-2.5 text-sm font-bold text-background transition-transform active:scale-[0.98]"
             >
-              <Plus
-                className={`size-6 transition-transform duration-200 ${menuOpen ? "rotate-45" : ""}`}
-                strokeWidth={2.4}
-              />
+              <Plus className="size-4" strokeWidth={2.4} />
+              Adicionar
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent
-            side="top"
-            align="center"
-            sideOffset={12}
-            className="w-48 rounded-2xl p-1.5"
-          >
+          <DropdownMenuContent side="right" align="start" className="w-48 rounded-2xl p-1.5">
             <DropdownMenuItem
               className="gap-2 rounded-xl py-2.5 text-sm font-semibold"
-              onSelect={() => navigate("/adicionar")}
+              onSelect={() => setAddProductOpen(true)}
             >
               <Package className="size-4" strokeWidth={2.2} />
               Novo produto
@@ -81,27 +81,7 @@ export function BottomNav() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-
-        {NAV_ITEMS.slice(2).map((it) => {
-          const active = it.match(pathname);
-          const Icon = it.icon;
-          return (
-            <Link
-              key={it.to}
-              to={it.to}
-              aria-label={it.label}
-              className={`flex flex-1 flex-col items-center justify-center gap-0.5 rounded-full px-3 py-2 transition-colors ${
-                active ? "text-foreground" : "text-muted-foreground"
-              }`}
-            >
-              <Icon className="size-5" strokeWidth={active ? 2.4 : 2} />
-              <span className="text-[10px] font-semibold tracking-wide">{it.label}</span>
-            </Link>
-          );
-        })}
-      </nav>
-      {/* spacer so content doesn't hide under nav */}
-      <div aria-hidden className="h-28 lg:hidden" />
+      </aside>
 
       {quickAdd && (
         <QuickAddDialog
@@ -110,6 +90,7 @@ export function BottomNav() {
           onOpenChange={(open) => !open && setQuickAdd(null)}
         />
       )}
+      <AddProductSheet open={addProductOpen} onOpenChange={setAddProductOpen} />
     </>
   );
 }
