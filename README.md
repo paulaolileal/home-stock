@@ -27,6 +27,48 @@ terceiros: tudo fica na planilha do seu próprio Google Drive.
 - **Login com Google obrigatório** — cada usuário tem sua própria planilha,
   criada automaticamente no primeiro acesso.
 
+## Capturas de tela
+
+<table>
+<tr><td colspan="2" align="center"><strong>Inventário</strong></td></tr>
+<tr>
+<td><img src="docs/images/hs-inventario-desktop.png" alt="Tela de inventário no desktop, com filtros por categoria e cards de produto" /></td>
+<td><img src="docs/images/hs-inventario-mobile.png" alt="Tela de inventário no mobile, com navegação inferior" width="220" /></td>
+</tr>
+<tr><td colspan="2" align="center"><strong>Busca</strong></td></tr>
+<tr>
+<td><img src="docs/images/hs-busca-desktop.png" alt="Tela de busca de produtos no desktop" /></td>
+<td><img src="docs/images/hs-busca-mobile.png" alt="Tela de busca de produtos no mobile" width="220" /></td>
+</tr>
+<tr><td colspan="2" align="center"><strong>Lista de compras</strong></td></tr>
+<tr>
+<td><img src="docs/images/hs-compras-desktop.png" alt="Lista de compras no desktop, com itens abaixo do mínimo" /></td>
+<td><img src="docs/images/hs-compras-mobile.png" alt="Lista de compras no mobile" width="220" /></td>
+</tr>
+<tr><td colspan="2" align="center"><strong>Adicionar produto</strong></td></tr>
+<tr>
+<td colspan="2" align="center"><img src="docs/images/hs-novo-produto-desktop.png" alt="Modal de adicionar produto, com atalho para escanear código de barras" width="600" /></td>
+</tr>
+<tr><td colspan="2" align="center"><strong>Detalhe do produto</strong></td></tr>
+<tr>
+<td><img src="docs/images/hs-item-details-desktop.png" alt="Tela de detalhe do produto no desktop, com stepper de quantidade" /></td>
+<td><img src="docs/images/hs-item-details-mobile.png" alt="Tela de detalhe do produto no mobile" width="220" /></td>
+</tr>
+<tr>
+<td><img src="docs/images/hs-item-details-2-desktop.png" alt="Tela de detalhe do produto no desktop, com campos expandidos (categoria, local, mínimo/ideal)" /></td>
+<td><img src="docs/images/hs-item-details-2-mobile.png" alt="Tela de detalhe do produto no mobile, com campos expandidos" width="220" /></td>
+</tr>
+<tr><td colspan="2" align="center"><strong>Ajustes</strong></td></tr>
+<tr>
+<td><img src="docs/images/hs-ajustes-desktop.png" alt="Tela de ajustes no desktop, com tema, conta Google, categorias e locais" /></td>
+<td><img src="docs/images/hs-ajustes-mobile.png" alt="Tela de ajustes no mobile" width="220" /></td>
+</tr>
+<tr>
+<td></td>
+<td><img src="docs/images/hs-ajustes-2-mobile.png" alt="Tela de ajustes no mobile, rolada até a lista de locais" width="220" /></td>
+</tr>
+</table>
+
 ## Stack
 
 - React 19 + TypeScript + Vite
