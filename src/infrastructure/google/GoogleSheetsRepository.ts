@@ -6,14 +6,15 @@
  * - Escreve por linha: localiza a linha pelo ID, faz PUT em values/{aba}!A{n}:N{n}.
  * - Cria novas linhas via `values:append` (atômico, sem risco de race condition).
  *
- * Esta implementação assume que o frontend já recebeu um access_token via
- * Google Identity Services e o passou ao construtor (em memória, nunca em
- * localStorage).
+ * Requisições passam por `googleApiFetch` (garante um access_token fresco,
+ * renovando silenciosamente em segundo plano quando necessário — o token
+ * nunca é passado ao construtor, nem persistido em localStorage).
  */
 
 import type { InventoryRepository } from "@/domain/repository";
 import type { Category, Location, Product } from "@/domain/types";
 import { categoryId, locationId, productId } from "@/lib/idgen";
+import { googleApiFetch } from "./googleApiFetch";
 
 const API = "https://sheets.googleapis.com/v4/spreadsheets";
 
@@ -43,7 +44,6 @@ const PRODUCT_HEADERS = [
 
 export interface GoogleSheetsConfig {
   spreadsheetId: string;
-  ensureAccessToken: () => Promise<string | null>;
 }
 
 export class GoogleSheetsRepository implements InventoryRepository {
@@ -77,21 +77,10 @@ export class GoogleSheetsRepository implements InventoryRepository {
   }
 
   private async request<T>(path: string, init?: RequestInit): Promise<T> {
-    const token = await this.cfg.ensureAccessToken();
-    if (!token) throw new Error("Sem token Google — faça login novamente.");
-    const res = await fetch(`${API}/${this.cfg.spreadsheetId}${path}`, {
+    return googleApiFetch<T>(`${API}/${this.cfg.spreadsheetId}${path}`, {
       ...init,
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-        ...(init?.headers ?? {}),
-      },
+      apiLabel: "Sheets API",
     });
-    if (!res.ok) {
-      const body = await res.text();
-      throw new Error(`Sheets API ${res.status}: ${body}`);
-    }
-    return res.json() as Promise<T>;
   }
 
   private async getValues(range: string): Promise<string[][]> {

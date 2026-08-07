@@ -16,11 +16,25 @@ import {
 import { useTheme } from "@/presentation/theme/useTheme";
 import { InstallAppCard } from "@/presentation/components/InstallAppCard";
 import { clearSheetProvider } from "@/application/repositoryProvider";
+import { GoogleAuthError } from "@/infrastructure/google/googleApiFetch";
 import { clearAccessToken } from "@/services/googleAuth";
 import { useAuthStore } from "@/store/authStore";
 import { useSpreadsheetStore } from "@/store/spreadsheetStore";
 import { groupLocations, locationLeaf, shouldShowGroupLabel } from "@/lib/locationFormat";
 import { cn } from "@/lib/utils";
+
+/**
+ * Session-expiry (`GoogleAuthError`) is already surfaced once, globally, by
+ * the QueryClient's `mutationCache.onError` (see main.tsx) with a persistent
+ * "Reconectar" toast — skip the call-site's own generic-text toast here to
+ * avoid a duplicate.
+ */
+function onlyIfNotAuthError(message: string) {
+  return (e: Error) => {
+    if (e instanceof GoogleAuthError) return;
+    toast.error(message);
+  };
+}
 
 export function SettingsPage() {
   const navigate = useNavigate();
@@ -139,18 +153,18 @@ export function SettingsPage() {
             onRename={(id, name) =>
               updateCategory.mutate(
                 { id, name },
-                { onError: () => toast.error("Não foi possível renomear a categoria") },
+                { onError: onlyIfNotAuthError("Não foi possível renomear a categoria") },
               )
             }
             onRemove={(id) =>
               deleteCategory.mutate(id, {
-                onError: () => toast.error("Não foi possível remover a categoria"),
+                onError: onlyIfNotAuthError("Não foi possível remover a categoria"),
               })
             }
             onEmojiChange={(id, emoji) =>
               updateCategory.mutate(
                 { id, emoji },
-                { onError: () => toast.error("Não foi possível atualizar o emoji") },
+                { onError: onlyIfNotAuthError("Não foi possível atualizar o emoji") },
               )
             }
             placeholder="Nova categoria..."
@@ -170,12 +184,12 @@ export function SettingsPage() {
             onRename={(id, name) =>
               updateLocation.mutate(
                 { id, name },
-                { onError: () => toast.error("Não foi possível renomear o local") },
+                { onError: onlyIfNotAuthError("Não foi possível renomear o local") },
               )
             }
             onRemove={(id) =>
               deleteLocation.mutate(id, {
-                onError: () => toast.error("Não foi possível remover o local"),
+                onError: onlyIfNotAuthError("Não foi possível remover o local"),
               })
             }
           />

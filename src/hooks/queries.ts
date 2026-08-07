@@ -4,8 +4,20 @@ import { toast } from "sonner";
 import { getSheetProvider } from "@/application/repositoryProvider";
 import type { Category, Location, Product } from "@/domain/types";
 import { compareNames } from "@/lib/utils";
+import { GoogleAuthError } from "@/infrastructure/google/googleApiFetch";
 
 const repo = () => getSheetProvider();
+
+/**
+ * Shared `onError` for mutations. Session-expiry (`GoogleAuthError`) is already
+ * surfaced once, globally, by the QueryClient's `mutationCache.onError` (see
+ * main.tsx) with a persistent "Reconectar" toast — skip it here to avoid a
+ * duplicate, generic-text toast on top of it.
+ */
+function onErrorToast(e: Error) {
+  if (e instanceof GoogleAuthError) return;
+  toast.error(e.message);
+}
 
 export const qk = {
   products: ["products"] as const,
@@ -44,7 +56,7 @@ export function useCreateProduct() {
   return useMutation({
     mutationFn: (input: Omit<Product, "id" | "updatedAt">) => repo().createProduct(input),
     onSuccess: () => qc.invalidateQueries({ queryKey: qk.products }),
-    onError: (e: Error) => toast.error(e.message),
+    onError: onErrorToast,
   });
 }
 
@@ -62,7 +74,7 @@ export function useUpdateProduct() {
       return { previous };
     },
     onError: (e: Error, _vars, context) => {
-      toast.error(e.message);
+      onErrorToast(e);
       if (context?.previous) qc.setQueryData(qk.products, context.previous);
     },
     onSettled: () => qc.invalidateQueries({ queryKey: qk.products }),
@@ -74,7 +86,7 @@ export function useDeleteProduct() {
   return useMutation({
     mutationFn: (id: string) => repo().deleteProduct(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: qk.products }),
-    onError: (e: Error) => toast.error(e.message),
+    onError: onErrorToast,
   });
 }
 
@@ -92,7 +104,7 @@ export function useToggleFavorite() {
       return { previous };
     },
     onError: (e: Error, _vars, context) => {
-      toast.error(e.message);
+      onErrorToast(e);
       if (context?.previous) qc.setQueryData(qk.products, context.previous);
     },
     onSettled: () => qc.invalidateQueries({ queryKey: qk.products }),
@@ -136,7 +148,7 @@ export function useSetInCart() {
       return { previous };
     },
     onError: (e: Error, _vars, context) => {
-      toast.error(e.message);
+      onErrorToast(e);
       if (context?.previous) qc.setQueryData(qk.products, context.previous);
     },
     onSettled: () => qc.invalidateQueries({ queryKey: qk.products }),
@@ -166,7 +178,7 @@ export function useIncrementProduct() {
       repo()
         .updateProduct(id, { quantity: current.quantity })
         .catch((e: Error) => {
-          toast.error(e.message);
+          onErrorToast(e);
           qc.invalidateQueries({ queryKey: qk.products });
         });
     },
@@ -209,7 +221,7 @@ export function useCreateCategory() {
         old?.some((c) => c.id === category.id) ? old : [...(old ?? []), category],
       );
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: onErrorToast,
   });
 }
 
@@ -219,7 +231,7 @@ export function useUpdateCategory() {
     mutationFn: ({ id, name, emoji }: { id: string; name?: string; emoji?: string }) =>
       repo().updateCategory(id, { name, emoji }),
     onSuccess: () => qc.invalidateQueries({ queryKey: qk.categories }),
-    onError: (e: Error) => toast.error(e.message),
+    onError: onErrorToast,
   });
 }
 
@@ -228,7 +240,7 @@ export function useDeleteCategory() {
   return useMutation({
     mutationFn: (id: string) => repo().deleteCategory(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: qk.categories }),
-    onError: (e: Error) => toast.error(e.message),
+    onError: onErrorToast,
   });
 }
 
@@ -241,7 +253,7 @@ export function useCreateLocation() {
         old?.some((l) => l.id === location.id) ? old : [...(old ?? []), location],
       );
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: onErrorToast,
   });
 }
 
@@ -250,7 +262,7 @@ export function useUpdateLocation() {
   return useMutation({
     mutationFn: ({ id, name }: { id: string; name: string }) => repo().updateLocation(id, name),
     onSuccess: () => qc.invalidateQueries({ queryKey: qk.locations }),
-    onError: (e: Error) => toast.error(e.message),
+    onError: onErrorToast,
   });
 }
 
@@ -259,7 +271,7 @@ export function useDeleteLocation() {
   return useMutation({
     mutationFn: (id: string) => repo().deleteLocation(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: qk.locations }),
-    onError: (e: Error) => toast.error(e.message),
+    onError: onErrorToast,
   });
 }
 

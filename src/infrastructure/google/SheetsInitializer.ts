@@ -1,3 +1,5 @@
+import { googleApiFetch } from "./googleApiFetch";
+
 const SHEETS_API = "https://sheets.googleapis.com/v4/spreadsheets";
 
 interface SheetSpec {
@@ -43,24 +45,8 @@ type AddSheetReply = {
 };
 
 export class SheetsInitializer {
-  constructor(private readonly ensureAccessToken: () => Promise<string | null>) {}
-
   private async request<T>(url: string, init?: RequestInit): Promise<T> {
-    const token = await this.ensureAccessToken();
-    if (!token) throw new Error("Sem token Google — faça login novamente.");
-    const res = await fetch(url, {
-      ...init,
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-        ...(init?.headers ?? {}),
-      },
-    });
-    if (!res.ok) {
-      const body = await res.text();
-      throw new Error(`Sheets API ${res.status}: ${body}`);
-    }
-    return res.json() as Promise<T>;
+    return googleApiFetch<T>(url, { ...init, apiLabel: "Sheets API" });
   }
 
   async createSpreadsheet(title: string): Promise<string> {
